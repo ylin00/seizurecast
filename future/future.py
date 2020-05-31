@@ -108,24 +108,6 @@ def load_tse_bi(token_path):
     return intvs, labels
 
 
-def which_bin(elem, bins):
-    """Return the index of first intervals that element is in
-
-    Args:
-        elem(float): a number.
-        bins: an array of intervals in the format of (lower, upper]
-
-    Returns:
-        int: an index of the first interval the element is in. -1 if not found.
-
-    """
-    for idx, bounds in enumerate(bins, start=1):
-        if bounds[0] < elem <= bounds[1]:
-            return idx
-    else:
-        return -1
-
-
 def relabel_tse_bi(intvs, labels, len_pre=100, len_post=300, sec_gap=0):
     """ Compute labels from background and seizure intervals
 
@@ -162,10 +144,11 @@ def relabel_tse_bi(intvs, labels, len_pre=100, len_post=300, sec_gap=0):
                                [min(pos, end), end]])
                 _labls.extend([LABEL_POS, LABEL_BKG])
             else:
-                _intvs.extend([[beg, min(pos, end)],
-                               [min(pos, end), max(beg, pre)],
-                               [max(beg, pre), max(beg, gap)],
-                               [max(beg, gap), end]])
+                pos_end = min(pos, end)
+                pre_beg = max(pos_end, pre)
+                gap_beg = max(pos_end, gap)
+                _intvs.extend([[beg, pos_end],[pos_end, pre_beg],
+                               [pre_beg, gap_beg],[gap_beg, end]])
                 _labls.extend([LABEL_POS, LABEL_BKG, LABEL_PRE, LABEL_NAN])
         elif lbl == LABEL_SEZ:
             _intvs.append([beg, end])
@@ -208,7 +191,11 @@ def chop_signal(sig, fsamp:int):
             0 if all DATA[i] has same length.
             1 if otherwise.
     """
-    raise NotImplementedError
+    nrow = len(sig)
+    res = []
+    for i in range(0, nrow // int(fsamp), 1):
+        res.append(sig[i*fsamp:(i+1)*fsamp])
+    return res
 
 
 def get_data_label(sig, fsamp, ch_labels, intvs, labels, opt=None):
