@@ -1,0 +1,30 @@
+# file: params_00.txt
+#
+# A simple parameter file for nedc_pystream that selects and prints
+# a single channel that has the text "FP1" as part of a channel label.
+#
+
+# set version information:
+#
+version = 1.0
+
+# set channel selection and montage processing:
+#  channel_selection: "(null)" -or- a channel label (e.g. "Fp1-REF")
+#  match_mode: "exact", "partial"
+#  montage: must be "(null)" or a character string containing the channel and 
+#  a montage label string.
+#  	    e.g.: montage =  0, FP1-F7: EEG FP1-REF --  EEG F7-REF
+#  	    	  montage =  1, F7-T3:  EEG F7-REF  --  EEG T3-REF
+#                 montage =  2, EKG: EEG EKG
+#
+MONTAGE {
+ channel_selection = "FP1-REF"
+ match_mode = partial
+ montage = (null)
+}
+
+#------------------------------------------------------------------------------
+#
+# end of file
+#
+#------------------------------------------------------------------------------

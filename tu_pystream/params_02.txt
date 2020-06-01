@@ -1,0 +1,26 @@
+# file: params_02.txt
+#
+# An example of the use of the parameter file to difference two channels.
+#
+
+# set version information:
+#  version: "1.0"
+#
+version = 1.0
+
+# set channel selection and montage processing
+#
+MONTAGE {
+ channel_selection = "FP1", "FP2", "F3", "T3"
+ match_mode = partial
+ montage =  0, Joe: T3
+ montage =  1, Mary: F3
+ montage =  2, John: FP2
+ montage =  3, Jane: FP1
+}
+
+#------------------------------------------------------------------------------
+#
+# end of file
+#
+#------------------------------------------------------------------------------

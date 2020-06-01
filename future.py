@@ -10,6 +10,8 @@
 4. validate models
 """
 import tu_pystream.nedc_pystream as ps
+import math
+
 
 LABEL_BKG = 'bckg'
 LABEL_PRE = 'pres'
@@ -22,14 +24,13 @@ def read_1_token(token_path):
     """Read EDF file and apply its corresponding montage info
 
     Args:
-        edf_filepath: file path to the edf file. Should follow the same
+        token_path: file path to the edf file. Should follow the same
             nameing rules defined in
             https://www.isip.piconepress.com/projects/tuh_eeg/downloads/tuh_eeg/_DOCS/conventions/filenames_v00.txt
 
     Returns:
-        fsamp_mont: list of sampling rate
-        sig_mont: list of list of signals in micro Volt
-        labels_mont: list of labels.
+        tuple: 1-list of sampling rate. 2-list of list of signals in micro
+            Volt. 3-list of labels.
 
     """
 
@@ -47,7 +48,7 @@ def read_1_token(token_path):
     fsamp_mont, sig_mont, labels_mont = ps.nedc_apply_montage(params, fsamp_sel,
                                                               sig_sel,
                                                               labels_sel)
-    return fsamp_mont, sig_mont, labels_mont
+    return fsamp_mont, list(map(list, zip(*sig_mont))), labels_mont
 
 
 def read_1_session(session_path):
@@ -198,7 +199,7 @@ def chop_signal(sig, fsamp:int):
     return res
 
 
-def get_data_label(sig, fsamp, ch_labels, intvs, labels, opt=None):
+def signal_to_dataset(sig, fsamp, intvs, labels):
     """return data and labels
 
     returns dataset and label_array : a list of data, each block is 1
@@ -207,20 +208,23 @@ def get_data_label(sig, fsamp, ch_labels, intvs, labels, opt=None):
 
     Args:
         sig: array of array of EEG signals.
-        fsamp: integer, sampling rate.
+        fsamp(int): integer, sampling rate.
         ch_labels: array of channel labels. Len(LABELS) must = width of SIG
         intvs: list of list of intervals
         labels: list of labels. Must be same len as INTVS
-        opt: dictionary of options
-            len_pre: length of pre-seizure stage in seconds
-            len_post: length of post-seizure stage in seconds
-            sec_gap: gap between pre-seizure and seizure in seconds
 
     Returns:
         tuple: dataset: list of data; labels: list of labels
 
     """
-    raise NotImplementedError
+    ds, lbl = [], []
+    for i, inv in enumerate(intvs):
+        tstart, tend = inv
+        chopped_sig = chop_signal(
+            sig[math.ceil(tstart*fsamp):math.floor(tend*fsamp)], fsamp)
+        ds.extend(chopped_sig)
+        lbl.extend([labels[i]] * len(chopped_sig))
+    return ds, lbl
 
 
 def plot_eeg(dataframe, tmin, tmax, fsamp):

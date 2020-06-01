@@ -1,0 +1,23 @@
+# file: params_01.txt
+#
+# A more complex parameter file that selects several channels.
+#
+
+# set version information:
+#  version: "1.0"
+#
+version = 1.0
+
+# define a channel selection that selects several channels
+#
+MONTAGE {
+ channel_selection = "FP1", "FP2", "F3", "T3"
+ match_mode = partial
+ montage = (null)
+}
+
+#------------------------------------------------------------------------------
+#
+# end of file
+#
+#------------------------------------------------------------------------------
