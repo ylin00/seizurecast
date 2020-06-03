@@ -8,9 +8,18 @@
 2. get labels
 3. train models
 4. validate models
+
+Functions in this module should:
+
+Args:
+    path(str): string path to file or folder
+
+Returns:
+    dataset: nepoch x nchannel x nsamples
 """
 import tu_pystream.nedc_pystream as ps
 import math
+import os
 
 
 LABEL_BKG = 'bckg'
@@ -18,6 +27,16 @@ LABEL_PRE = 'pres'
 LABEL_SEZ = 'seiz'
 LABEL_POS = 'post'
 LABEL_NAN = ''
+EVENT_ID = {LABEL_BKG: 0,
+            LABEL_PRE: 1,
+            LABEL_SEZ: 2,
+            LABEL_POS: 3,
+            LABEL_NAN: 4}
+STD_CHANNEL_01_AR = ['FP1-F7', 'F7-T3', 'T3-T5', 'T5-O1', 'FP2-F8', 'F8-T4',
+                     'T4-T6', 'T6-O2', 'A1-T3', 'T3-C3', 'C3-CZ', 'CZ-C4',
+                     'C4-T4', 'T4-A2', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1',
+                     'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2']
+
 
 
 def read_1_token(token_path):
@@ -48,7 +67,7 @@ def read_1_token(token_path):
     fsamp_mont, sig_mont, labels_mont = ps.nedc_apply_montage(params, fsamp_sel,
                                                               sig_sel,
                                                               labels_sel)
-    return fsamp_mont, list(map(list, zip(*sig_mont))), labels_mont
+    return fsamp_mont, sig_mont, labels_mont
 
 
 def read_1_session(session_path):
@@ -59,9 +78,9 @@ def read_1_session(session_path):
             e.g. tuh_eeg/v1.0.0/edf/00000037/00001234/s001_2012_03_06
 
     Returns:
-        standard data TBD
+        dataset, labels
     """
-    pass
+    raise NotImplementedError
 
 
 def read_1_patient(patient_folder):
@@ -163,7 +182,7 @@ def relabel_tse_bi(intvs, labels, len_pre=100, len_post=300, sec_gap=0):
     return _intvs, _labls
 
 
-def sort_channel(sig, ch_labels, std_labels):
+def sort_channel(sig, ch_labels, std_labels=STD_CHANNEL_01_AR):
     """sort channel based on standard labels
 
     Args:
@@ -175,27 +194,27 @@ def sort_channel(sig, ch_labels, std_labels):
         sig_sorted: array of array of EEG signals
 
     """
-    raise NotImplementedError
+    if len(set(ch_labels).intersection(set(std_labels))) < len(std_labels):
+        return None
+    else:
+        return [sig[i] for i in [ch_labels.index(lbl) for lbl in std_labels]]
 
 
 def chop_signal(sig, fsamp:int):
     """Generate dataset from EEG signals and labels
 
     Args:
-        sig: array of array of EEG signals.
+        sig: array of array of EEG signals. (n_channels, n_times)
         fsamp: integer, sampling rate.
 
     Returns:
-        data: list of list of list of EEG signals.
-            DATA[i] has length of FSAMP[i] and width of len(LABELS)
-        flag:
-            0 if all DATA[i] has same length.
-            1 if otherwise.
+        list: EEG signals (n_epochs, n_channels, fsamp).
+
     """
-    nrow = len(sig)
+    n_times = len(sig[0])
     res = []
-    for i in range(0, nrow // int(fsamp), 1):
-        res.append(sig[i*fsamp:(i+1)*fsamp])
+    for i in range(0, n_times // int(fsamp), 1):
+        res.append([channel[i*fsamp:(i+1)*fsamp] for channel in sig])
     return res
 
 
@@ -207,21 +226,22 @@ def signal_to_dataset(sig, fsamp, intvs, labels):
     order.
 
     Args:
-        sig: array of array of EEG signals.
+        sig: array of array of EEG signals. (n_channels, n_times)
         fsamp(int): integer, sampling rate.
-        ch_labels: array of channel labels. Len(LABELS) must = width of SIG
         intvs: list of list of intervals
         labels: list of labels. Must be same len as INTVS
 
     Returns:
-        tuple: dataset: list of data; labels: list of labels
+        tuple: dataset: list of data; (n_epochs, n_channels, fsamp), labels:
+        list of labels
 
     """
     ds, lbl = [], []
     for i, inv in enumerate(intvs):
         tstart, tend = inv
         chopped_sig = chop_signal(
-            sig[math.ceil(tstart*fsamp):math.floor(tend*fsamp)], fsamp)
+            [ch[math.ceil(tstart*fsamp):math.floor(tend*fsamp)] for ch in sig],
+            fsamp)
         ds.extend(chopped_sig)
         lbl.extend([labels[i]] * len(chopped_sig))
     return ds, lbl
