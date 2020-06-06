@@ -1,5 +1,5 @@
 import numpy as np
-from io import *
+from file_io import *
 
 
 def test_relabel():

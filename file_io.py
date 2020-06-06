@@ -182,43 +182,43 @@ def relabel_tse_bi(intvs, labels, len_pre=100, len_post=300, sec_gap=0):
     return _intvs, _labls
 
 
-def sort_channel(sig, ch_labels, std_labels=STD_CHANNEL_01_AR):
+def sort_channel(raw, ch_labels, std_labels=STD_CHANNEL_01_AR):
     """sort channel based on standard labels
 
     Args:
-        sig: array of array of EEG signals.
+        raw: (n_channel, n_sample) of EEG signals.
         ch_labels: array of channel labels. Len(LABELS) must = width of SIG
         std_labels: array of standard channel labels. must of same len as LABELS
 
     Returns:
-        sig_sorted: array of array of EEG signals
+        list: EEG signals, same shape as RAW
 
     """
     if len(set(ch_labels).intersection(set(std_labels))) < len(std_labels):
         return None
     else:
-        return [sig[i] for i in [ch_labels.index(lbl) for lbl in std_labels]]
+        return [raw[i] for i in [ch_labels.index(lbl) for lbl in std_labels]]
 
 
-def chop_signal(sig, fsamp:int):
+def chop_signal(raw, n_sample_per_epoch:int):
     """Generate dataset from EEG signals and labels
 
     Args:
-        sig: array of array of EEG signals. (n_channels, n_times)
-        fsamp: integer, sampling rate.
+        raw: EEG signals. Shape: (n_channel, n_sample).
+        n_sample_per_epoch: Number of samples per epoch.
 
     Returns:
-        list: EEG signals (n_epochs, n_channels, fsamp).
+        list: EEG signals (n_epochs, n_channels, n_sample_per_epoch).
 
     """
-    n_times = len(sig[0])
+    n_times = len(raw[0])
     res = []
-    for i in range(0, n_times // int(fsamp), 1):
-        res.append([channel[i*fsamp:(i+1)*fsamp] for channel in sig])
+    for i in range(0, n_times // int(n_sample_per_epoch), 1):
+        res.append([channel[i * n_sample_per_epoch:(i + 1) * n_sample_per_epoch] for channel in raw])
     return res
 
 
-def signal_to_dataset(sig, fsamp, intvs, labels):
+def signal_to_dataset(raw, fsamp, intvs, labels):
     """return data and labels
 
     returns dataset and label_array : a list of data, each block is 1
@@ -226,13 +226,13 @@ def signal_to_dataset(sig, fsamp, intvs, labels):
     order.
 
     Args:
-        sig: array of array of EEG signals. (n_channels, n_times)
-        fsamp(int): integer, sampling rate.
-        intvs: list of list of intervals
+        raw: EEG signals. Shape: (n_channel, n_sample).
+        fsamp(int): sampling rate. Unit: Hz
+        intvs: list of [start, end]. Unit: second
         labels: list of labels. Must be same len as INTVS
 
     Returns:
-        tuple: dataset: list of data; (n_epochs, n_channels, fsamp), labels:
+        tuple: dataset: list of data; (n_epochs, n_channels, n_sample_per_epoch), labels:
         list of labels
 
     """
@@ -240,7 +240,7 @@ def signal_to_dataset(sig, fsamp, intvs, labels):
     for i, inv in enumerate(intvs):
         tstart, tend = inv
         chopped_sig = chop_signal(
-            [ch[math.ceil(tstart*fsamp):math.floor(tend*fsamp)] for ch in sig],
+            [ch[math.ceil(tstart*fsamp):math.floor(tend*fsamp)] for ch in raw],
             fsamp)
         ds.extend(chopped_sig)
         lbl.extend([labels[i]] * len(chopped_sig))

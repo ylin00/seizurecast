@@ -1,4 +1,4 @@
-from io import *
+from file_io import *
 import utils
 import os
 import numpy as np
@@ -38,14 +38,14 @@ def load_a_session():
         intvs, labls = relabel_tse_bi(intvs=intvs, labels=labls,
                                       len_pre=LEN_PRE, len_post=LEN_POS,
                                       sec_gap=SEC_GAP)
-        ds, lbl = signal_to_dataset(sig=s, fsamp=f, intvs=intvs, labels=labls)
+        ds, lbl = signal_to_dataset(raw=s, fsamp=f, intvs=intvs, labels=labls)
         dataset.extend(ds)
         labels.extend(lbl)
 
     utils.save(dataset, labels)
     return dataset, labels
 
-
-# load_a_session()
-dataset, labels = utils.load()
-print(np.shape(dataset), np.shape(labels))
+#
+# # load_a_session()
+# dataset, labels = utils.load()
+# print(np.shape(dataset), np.shape(labels))
