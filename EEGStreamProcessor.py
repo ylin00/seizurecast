@@ -19,18 +19,18 @@ class StreamerOptions:
     def __init__(self):
 
         # Streaming related configs
-        self.max_stream_duration = 1000
-        """maximum duration in seconds"""
+        self.max_stream_duration = 100
+        """maximum duration in seconds. How long the Streamer should run?"""
         self.streaming_rate = 1
-        """streaming rate in Hz"""
+        """streaming rate in Hz. Number of data to process per second. """
         self.delay_refresh_intv = 1/self.streaming_rate
-        """refresh interval in seconds"""
+        """refresh interval in seconds."""
 
         # Data related configs
         self.sampling_rate = 400
-        """data sampling rate in Hz"""
+        """data sampling rate in Hz. Properties of the data. Should be 400. """
         self.data_shape = [22, self.sampling_rate]  # nchannel x nsamples
-        """shape of data"""
+        """shape of data. Number of channels x sampling rate."""
 
 
 class EEGStreamProcessor:
@@ -48,33 +48,22 @@ class EEGStreamProcessor:
         """producer that produces predition results"""
 
         self.streaming_rate = so.streaming_rate
-        """streaming rate in Hz"""
-        self.delay_refresh_intv = so.delay_refresh_intv
-        """refresh interval in seconds"""
         self.max_stream_duration = so.max_stream_duration
-        """maximum duration in seconds"""
-
         self.data_shape = so.data_shape
-        """shape of data"""
         self.sampling_rate = so.sampling_rate
-        """data sampling rate in Hz"""
 
         self.__streamqueue = deque()
-        """queue for stream"""
+        # queue for raw data
         self.__data = deque()
-        """queue for data"""
         self.__data_t = deque()
-        """queue of data timestamp"""
+        # queue of processed_data
         self.__pdata = deque()
-        """queue of processed_data"""
         self.__pdata_t = deque()
-        """"""
+        # queue of results
         self.__res = deque()
-        """"""
         self.__res_t = deque()
-        """"""
         self.__model = None
-        """"""
+
         self.setup()
 
     def setup(self):
@@ -101,7 +90,7 @@ class EEGStreamProcessor:
 
             stream_delay, stream_count, heart_beat = sleep_and_sync(
                 stream_delay, stream_count, heart_beat,
-                self.streaming_rate, self.delay_refresh_intv, DEBUG=DEBUG)
+                self.streaming_rate, 1/self.streaming_rate, DEBUG=DEBUG)
 
             # too long, shut down
             if time() - start_time > self.max_stream_duration:
