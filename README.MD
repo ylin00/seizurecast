@@ -4,17 +4,20 @@ Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC
 
 2. Git clone your app (github repo) to the server
 
-2.5 Install Streamlit *using sudo*
+2.5. Install Streamlit *using sudo*
 ```sudo python3 -m pip install streamlit```
 Check the following: 
 ```streamlit -h```
 
-3. Install tmux and run a session 
+3. Install tmux and run a session.\\
 3.1. new session: 
 `tmux new -s my_session`
+
 3.2. run streamlit app: 
 `streamlit run app.py`
+
 3.3. detach session by key sequence Ctrl-b + d to detach from the session
+
 3.4. (optional) kill all sessoins:
 ```tmux kill-session -a```
 
@@ -50,7 +53,9 @@ And save it by `:wq`
 sudo nginx -s reload
 ```
 
-5. Try it out
+5. Try it out.
+
 Test `YOUR_DOMAIN_NAME/google` should point to google.com.
+
 Test `YOUR_DOMAIN_NAME` should point to your app
 
