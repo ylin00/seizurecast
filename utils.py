@@ -1,4 +1,6 @@
 import pickle
+
+import numpy as np
 from pandas import DataFrame
 
 
@@ -61,3 +63,11 @@ def array3D_to_dataframe(dataset, labels):
     """
     flat = []
 
+
+def dataset2Xy(ds_pwd, labels):
+    """Convert dataset, labels to X, y for sklearn"""
+    ds_pwd = np.array(ds_pwd)
+    ne, nc, ns = np.shape(ds_pwd)
+    X = ds_pwd.transpose([0, 2, 1]).reshape(-1, nc * ns)
+    y = np.array(labels)
+    return X, y

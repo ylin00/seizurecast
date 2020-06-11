@@ -1,8 +1,40 @@
 """Feature Engineering-related function"""
 import numpy as np
-from utils import *
+import pyeeg
 
-"""Naive statistics"""
+
+def power_and_freq(data):
+    """Calculate 1st moment of y and 1st, 2nd moment of x
+
+    Args:
+        data: num_of_channel x num_of_freq
+
+    Returns:
+        data: num_of_channel x 3
+    """
+    res0 = []
+    for channel in data:
+        pwd = np.mean(channel)
+        freqs = np.arange(0, len(channel))
+        pdf = np.array(channel) / np.sum(channel)
+        mu = np.sum(freqs * pdf)
+        # m2 = np.sum((freqs - mu)**2 * pdf)
+        res0.append((pwd, mu))
+    return res0
+
+
+def power(data, fsamp:int, band=range(0, 45)):
+    """Power spec of dataset
+
+    Args:
+        data: num_of_channel x num_of_sample
+
+    """
+    res = []
+    for j, channel in enumerate(data):
+        power = pyeeg.bin_power(channel, Band=band, Fs=fsamp)[0]
+        res.append(power)
+    return res
 
 
 def line_length(data):

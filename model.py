@@ -1,47 +1,37 @@
-import pyeeg
-import numpy as np
-import pandas as pd
-
-locate = lambda listOfElems, elem: [ i for i in range(len(listOfElems)) if listOfElems[i] == elem ]
+"""Credit: https://towardsdatascience.com/an-implementation-and-explanation-of-the-random-forest-in-python-77bf308a9b76"""
+from sklearn.metrics import precision_score, recall_score, roc_auc_score, \
+    roc_curve
 
 
-def bin_power(dataset, fsamp, Band=range(0,45)):
-    dataset_power = []
-    for i, data in enumerate(dataset):
-        res = []
-        for j, channel in enumerate(data):
-            power = pyeeg.bin_power(channel, Band=Band, Fs=fsamp)[0]
-            res.append(power)
-        dataset_power.append(res)
-    return dataset_power
+def evaluate_model(predictions, probs, train_predictions, train_probs,
+                   train_labels, test_labels):
+    """Compare machine learning model to baseline performance.
+    Computes statistics and shows ROC curve."""
 
+    baseline = {}
+    baseline['recall'] = recall_score(test_labels,
+                                      [1 for _ in range(len(test_labels))])
+    baseline['precis'] = precision_score(test_labels,
+                                         [1 for _ in range(len(test_labels))])
+    baseline['roc'] = 0.5
 
-def bin_power_avg(dataset, fsamp, Band=range(0,45)):
-    dataset_power = bin_power(dataset, fsamp, Band=Band)
+    results = {}
+    results['recall'] = recall_score(test_labels, predictions)
+    results['precis'] = precision_score(test_labels, predictions)
+    results['roc'] = roc_auc_score(test_labels, probs)
 
-    ds_pwd = np.array(dataset_power)
-    # wrangling to dataframe
-    ne, nc, ns = np.shape(ds_pwd)
-    df_pwd = pd.DataFrame(
-        ds_pwd.transpose([0, 2, 1]).reshape(-1, np.shape(ds_pwd)[1]),
-        columns=['ch' + str(i) for i in np.arange(0, nc)])
+    train_results = {}
+    train_results['recall'] = recall_score(train_labels, train_predictions)
+    train_results['precis'] = precision_score(train_labels, train_predictions)
+    train_results['roc'] = roc_auc_score(train_labels, train_probs)
 
-    df_pwd = df_pwd.assign(
-        freq=np.tile(np.arange(0, np.shape(ds_pwd)[2]), np.shape(ds_pwd)[0])) \
-        .assign(epoch=np.repeat(np.arange(0, ne), ns))
+    for metric in ['recall', 'precis', 'roc']:
+        print(
+            f'{metric.capitalize()} \t Base: {round(baseline[metric], 2)} \t Test: {round(results[metric], 2)}\t Train: {round(train_results[metric], 2)}')
 
-    dfpwd = pd.wide_to_long(df_pwd, ['ch'], ['freq', 'epoch'],
-                            'channel')
-    res = []
-    for name, group in dfpwd.groupby(['epoch', 'channel']):
-        ng = group.reset_index() \
-            .assign(pwd=lambda x: np.mean(x.ch),
-                    freqs=lambda x: np.sum(x.freq * x.ch / np.sum(x.ch))) \
-            .drop(['ch', 'freq'], 'columns') \
-            .drop_duplicates(['epoch', 'channel'])
-        res.append(ng)
-    dfpwd2 = pd.concat(res)
-    Xy = dfpwd2.pivot(index='epoch', columns='channel',
-                      values=['pwd', 'freqs']).to_numpy()
+    # Calculate false positive rates and true positive rates
+    base_fpr, base_tpr, _ = roc_curve(test_labels,
+                                      [1 for _ in range(len(test_labels))])
+    model_fpr, model_tpr, _ = roc_curve(test_labels, probs)
 
-    return Xy
+    return base_fpr, base_tpr, model_fpr, model_tpr

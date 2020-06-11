@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-from model import bin_power_avg
+from dataset_funcs import bin_power_avg
 from sklearn import preprocessing
 import pickle
 

@@ -10,7 +10,7 @@ from collections import deque
 from time import time
 from EEGStreamer import KALFK_BROKER_ADDRESS, CONSUMER_TOPIC, STREAMER_TOPIC, \
     sleep_and_sync, decode
-from model import bin_power_avg
+from dataset_funcs import bin_power_avg
 
 DEBUG = True
 
