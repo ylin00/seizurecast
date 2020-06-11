@@ -47,16 +47,23 @@ class Pipeline:
         self.results = Results()
 
     def dump_xy(self):
-        X, y = [], []
-        for ipath, token_path in enumerate(self.token_paths):
-            _X, _y = self.__Xy_from_one(token_path)
-            X.extend(_X), y.extend(_y)
         with open('xy.pkl', 'wb') as fp:
-            pickle.dump((X, y), fp)
+            for ipath, token_path in enumerate(self.token_paths):
+                if self.__verbose:
+                    print(f'dumping: {token_path}')
+                _X, _y = self.__Xy_from_one(token_path)
+                pickle.dump((_X, _y), fp)
 
     def load_xy(self):
+        X, y = [], []
         with open('xy.pkl', 'rb') as fp:
-            return pickle.load(fp)
+            for i in range(0, 1000000):
+                try:
+                    _X, _y = pickle.load(fp)
+                    X.extend(_X), y.extend(_y)
+                except EOFError:
+                    break
+        return X, y
 
     def pipe(self):
         X, y = self.load_xy()
@@ -85,6 +92,8 @@ class Pipeline:
         # balance data
         dataset, labels = balance_ds(dataset, labels, seed=100)
 
+        print(f"Collected {len(labels)} data points") if self.__verbose else None
+
         # feature extraction
         dataset_power = get_power(dataset, fsamp=self.SAMPLING_RATE)
 
@@ -92,16 +101,24 @@ class Pipeline:
         ds_pwd = get_power_freq(dataset_power)
         X, y = dataset2Xy(ds_pwd, labels)
 
-        # filtered out classes
-        id_bkg_pre = [any([yi == lbl for lbl in [LABEL_BKG, LABEL_PRE]]) for yi
-                      in labels]
-        X = X[id_bkg_pre,:]
-        y = y[id_bkg_pre]
+        return X, y
 
+    def __post_process(self, X, y):
+        # filtered out classes
+        id_bkg_pre = [any([yi == lbl for lbl in [LABEL_BKG, LABEL_PRE]]) for
+                      yi in y]
+        X = np.array(X)[id_bkg_pre, :]
+        y = np.array(y)[id_bkg_pre]
+
+        # balance data again
+        X, y = balance_ds(X, y, seed=100)
         return X, y
 
     def __eval_many(self, X, y):
         """Evaluate X and y"""
+        X, y = self.__post_process(X, y)
+
+        print(f"Collected {len(y)} data points") if self.__verbose else None
 
         if len(np.unique(y)) < 2:
             raise TrainError("# of unique values of y must >= 2")
@@ -162,12 +179,14 @@ if __name__ == '__main__':
     edfs = get_all_edfs()
     conf = Config()
     pipe = Pipeline(conf)
-    pipe.token_paths = edfs.sample(4,random_state=0)['token_path'].to_numpy()
-    dump0 = time()
-    print(f'Dumping {len(pipe.token_paths)} files')
-    pipe.dump_xy()
-    print(f'Dump cost = {round(time()-dump0)} s')
-    pipe.pipe()
+    # pipe.token_paths = edfs['token_path'].to_numpy()
+    # dump0 = time()
+    # print(f'Dumping {len(pipe.token_paths)} files')
+    # pipe.dump_xy()
+    # print(f'Dump cost = {round(time()-dump0)} s')
 
+    # (pipe.load_xy())
+    pipe.pipe()
+    #
     print(pipe.scores_CV, pipe.scores_Test, pipe.results)
     pipe.results.plot_roc_curve()
