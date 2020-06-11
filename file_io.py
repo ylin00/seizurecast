@@ -17,26 +17,41 @@ Args:
 Returns:
     dataset: nepoch x nchannel x nsamples
 """
-import tu_pystream.nedc_pystream as ps
+import glob
 import math
 import os
+import re
+
+import numpy as np
+import pandas as pd
+
+import tu_pystream.nedc_pystream as ps
+from par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
+    STD_CHANNEL_01_AR
+from preprocess import preprocess
 
 
-LABEL_BKG = 'bckg'
-LABEL_PRE = 'pres'
-LABEL_SEZ = 'seiz'
-LABEL_POS = 'post'
-LABEL_NAN = ''
-EVENT_ID = {LABEL_BKG: 0,
-            LABEL_PRE: 1,
-            LABEL_SEZ: 2,
-            LABEL_POS: 3,
-            LABEL_NAN: 4}
-STD_CHANNEL_01_AR = ['FP1-F7', 'F7-T3', 'T3-T5', 'T5-O1', 'FP2-F8', 'F8-T4',
-                     'T4-T6', 'T6-O2', 'A1-T3', 'T3-C3', 'C3-CZ', 'CZ-C4',
-                     'C4-T4', 'T4-A2', 'FP1-F3', 'F3-C3', 'C3-P3', 'P3-O1',
-                     'FP2-F4', 'F4-C4', 'C4-P4', 'P4-O2']
+def get_all_edfs():
+    """Returns all edf filepaths in a DataFrame
 
+    Returns:
+        pd.DataFrame: filepaths
+    """
+    columns = (
+    'path0', 'path1', 'path2', 'path3', 'tcp_type', 'patient_group', 'patient',
+    'session', 'token')
+
+    filelist = glob.glob(
+        os.path.join('../tusz_1_5_2/edf/train/01_tcp_ar', '**', '*.edf'),
+        recursive=True)
+    fparts = [re.split('/|[.]edf', filename)[:-1] for filename in filelist]
+
+    df = pd.DataFrame(
+        {key: value for key, value in zip(tuple(columns), tuple(zip(*fparts)))})
+
+    # A very complicated lambda function
+    return df.assign(token_path=lambda x: eval(
+        """eval("+'/'+".join(["x.""" + '","x.'.join(x.columns) + '"]))'))
 
 
 def read_1_token(token_path):
@@ -251,5 +266,46 @@ def plot_eeg(dataframe, tmin, tmax, fsamp):
     dataframe[slice(int(tmin*fsamp), int(tmax*fsamp))].plot(legend=False)
 
 
-if __name__ == '__main__':
-    pass
+def dataset_from_many_edfs(token_files, len_pre, len_post, sec_gap, fsamp=256):
+    """Read and process a list of edf files
+
+    Args:
+        token_files(list): list of edf file path without extension
+        len_pre: length of pre-seizure stage in seconds
+        len_post: length of post-seizure stage in seconds
+        sec_gap: gap between pre-seizure and seizure in seconds
+        fsamp(int): Desired sampling rate in Hz
+
+    Returns:
+        tuple(tuple, tuple, int): dataset, labels, sampling rate
+    """
+    # TODO: assert no extension in the edf file path
+    # TODO: dataset return as tuples
+
+    dataset, labels = [], []
+    for tf in token_files:
+        # load token
+        f, s, l = read_1_token(tf)
+        f = int(np.mean(f))
+
+        # sort channel label
+        s = sort_channel(s, l, STD_CHANNEL_01_AR)
+
+        # load labeling file
+        intvs, labls = load_tse_bi(tf)
+
+        # relabel
+        intvs, labls = relabel_tse_bi(intvs=intvs, labels=labls,
+                                      len_pre=len_pre, len_post=len_post,
+                                      sec_gap=sec_gap)
+
+        # pre process
+        s = preprocess(s, fsamp / np.mean(f))
+
+        # generate dataset
+        ds, lbl = signal_to_dataset(raw=s, fsamp=fsamp, intvs=intvs,
+                                    labels=labls)
+        dataset.extend(ds)
+        labels.extend(lbl)
+
+    return dataset, labels

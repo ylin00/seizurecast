@@ -2,11 +2,10 @@ from file_io import *
 import utils
 import os
 import numpy as np
-import pandas as pd
-import mne
-import matplotlib.pyplot as plt
 
 # relabeling config
+from par import STD_CHANNEL_01_AR
+
 LEN_PRE = 15
 LEN_POS = 60
 SEC_GAP = 0

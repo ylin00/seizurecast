@@ -1,2 +1,12 @@
 __pycache__
 .idea
+.DS_Store
+
+# notebook
+.ipynb_checkpoints/
+
+# tmp
+tmp/
+log/
+
+*.pkl

@@ -1,5 +1,6 @@
 import numpy as np
 from file_io import *
+from par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS
 
 
 def test_relabel():
