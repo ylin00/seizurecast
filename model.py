@@ -4,7 +4,7 @@ from sklearn.metrics import precision_score, recall_score, roc_auc_score, \
 
 
 def evaluate_model(predictions, probs, train_predictions, train_probs,
-                   train_labels, test_labels):
+                   train_labels, test_labels, verbose=True):
     """Compare machine learning model to baseline performance.
     Computes statistics and shows ROC curve."""
 
@@ -25,9 +25,12 @@ def evaluate_model(predictions, probs, train_predictions, train_probs,
     train_results['precis'] = precision_score(train_labels, train_predictions)
     train_results['roc'] = roc_auc_score(train_labels, train_probs)
 
-    for metric in ['recall', 'precis', 'roc']:
-        print(
-            f'{metric.capitalize()} \t Base: {round(baseline[metric], 2)} \t Test: {round(results[metric], 2)}\t Train: {round(train_results[metric], 2)}')
+    if verbose:
+        for metric in ['recall', 'precis', 'roc']:
+            print(f'{metric.capitalize()}\t '
+                  f'Base: {round(baseline[metric], 2)}\t '
+                  f'Test: {round(results[metric], 2)}\t '
+                  f'Train: {round(train_results[metric], 2)}')
 
     # Calculate false positive rates and true positive rates
     base_fpr, base_tpr, _ = roc_curve(test_labels,

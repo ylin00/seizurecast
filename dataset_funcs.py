@@ -16,8 +16,9 @@ def dataset_to_df(dataset, labels):
     return df_pwd
 
 
-def balance_ds(dataset, labels):
+def balance_ds(dataset, labels, seed=0):
     """Balance dataset"""
+    np.random.seed(seed)
     # count the labels
     lvls, cnts = np.unique(labels, return_counts=True)
     mcnt = np.min(cnts)

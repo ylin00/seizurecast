@@ -1,3 +1,5 @@
+"""Global Configurations"""
+
 # relabeling config
 LEN_PRE = 180
 LEN_POS = 60
