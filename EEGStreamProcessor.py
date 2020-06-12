@@ -12,7 +12,7 @@ from EEGStreamer import KALFK_BROKER_ADDRESS, CONSUMER_TOPIC, STREAMER_TOPIC, \
     sleep_and_sync, decode
 from dataset_funcs import bin_power_avg
 
-DEBUG = False
+DEBUG = True
 
 
 class StreamerOptions:
@@ -39,8 +39,8 @@ class EEGStreamProcessor:
         self.consumer = Consumer({
                 'bootstrap.servers': KALFK_BROKER_ADDRESS,
                 'auto.offset.reset': 'earliest',
-                'group.id': 'group',
-                'client.id': 'client',
+                'group.id': 'group-processor',
+                'client.id': 'client-local',
                 'enable.auto.commit': True,
                 'session.timeout.ms': 6000
         })
