@@ -1,5 +1,5 @@
 import os
-import tu_pystream.nedc_pystream as ps
+from src.data import tu_pystream as ps
 import numpy.testing as testing
 
 

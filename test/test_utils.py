@@ -1,5 +1,5 @@
-from utils import *
-from numpy.testing import assert_array_equal, assert_equal
+from src.utils import *
+from numpy.testing import assert_array_equal
 
 
 def test_save():

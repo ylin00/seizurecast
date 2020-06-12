@@ -1,10 +1,10 @@
-from file_io import *
-import utils
+from src.data.file_io import *
+from src import utils
 import os
 import numpy as np
 
 # relabeling config
-from par import STD_CHANNEL_01_AR
+from src.models.par import STD_CHANNEL_01_AR
 
 LEN_PRE = 15
 LEN_POS = 60
@@ -14,7 +14,7 @@ SEC_GAP = 0
 def load_a_session():
 
     """load one session"""
-    train_path = '../tusz_1_5_2/edf/train'
+    train_path = '../../../tusz_1_5_2/edf/train'
     tcp_type = '01_tcp_ar'
     patient_group = '004'
     patient = '00000492'

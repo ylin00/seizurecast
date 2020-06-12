@@ -1,6 +1,6 @@
 import pyeeg
 
-from feature import power_and_freq, power
+from src.features.feature import power_and_freq, power
 import numpy as np
 import pandas as pd
 

@@ -36,16 +36,16 @@ def transpose(matrix):
 
 
 def save(dataset, labels):
-    with open('dataset.pkl', 'wb') as fp:
+    with open('../data/raw/dataset.pkl', 'wb') as fp:
         pickle.dump(dataset, fp)
-    with open('labels.pkl', 'wb') as fp:
+    with open('../data/raw/labels.pkl', 'wb') as fp:
         pickle.dump(labels, fp)
 
 
 def load():
-    with open('dataset.pkl', 'rb') as fp:
+    with open('../data/raw/dataset.pkl', 'rb') as fp:
         d = pickle.load(fp)
-    with open('labels.pkl', 'rb') as fp:
+    with open('../data/raw/labels.pkl', 'rb') as fp:
         l = pickle.load(fp)
     return d, l
 

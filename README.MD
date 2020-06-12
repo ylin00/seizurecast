@@ -1,3 +1,59 @@
+SeizureCast
+==============================
+
+Real-time forecasting epileptic seizure using electroencephalogram
+
+Project Organization
+--------------------
+
+    ├── LICENSE
+    ├── Makefile           <- Makefile with commands like `make data` or `make train`
+    ├── README.md          <- The top-level README for developers using this project.
+    ├── data
+    │   ├── external       <- Data from third party sources.
+    │   ├── interim        <- Intermediate data that has been transformed.
+    │   ├── processed      <- The final, canonical data sets for modeling.
+    │   └── raw            <- The original, immutable data dump.
+    │
+    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
+    │
+    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    │
+    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
+    │                         the creator's initials, and a short `-` delimited description, e.g.
+    │                         `1.0-jqp-initial-data-exploration`.
+    │
+    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
+    │
+    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
+    │   └── figures        <- Generated graphics and figures to be used in reporting
+    │
+    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
+    │                         generated with `pip freeze > requirements.txt`
+    │
+    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
+    ├── src                <- Source code for use in this project.
+    │   ├── __init__.py    <- Makes src a Python module
+    │   │
+    │   ├── data           <- Scripts to download or generate data
+    │   │   └── make_dataset.py
+    │   │
+    │   ├── features       <- Scripts to turn raw data into features for modeling
+    │   │   └── build_features.py
+    │   │
+    │   ├── models         <- Scripts to train models and then use trained models to make
+    │   │   │                 predictions
+    │   │   ├── predict_model.py
+    │   │   └── train_model.py
+    │   │
+    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
+    │       └── visualize.py
+    │
+    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+
+
+Installation
+------------
 # Deploy streamlit on EC2
 1. Setup EC2 running ubuntu 18.04
 Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html
@@ -12,10 +68,10 @@ Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC
 ```streamlit -h```
 
 3. Install tmux and run a session.
-* new session: 
+* new session:
 `tmux new -s my_session`
 
-* run streamlit app: 
+* run streamlit app:
 `streamlit run app.py`
 
 * detach session by key sequence Ctrl-b + d to detach from the session
@@ -23,7 +79,7 @@ Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC
 * (optional) kill all sessoins:
 ```tmux kill-session -a```
 
-4. Install nginx and 
+4. Install nginx and
 
 * Run
 ``` sudo vim /etc/nginx/sites-enabled/streamlit```
@@ -78,7 +134,7 @@ Note: 3.5.3-beta has all four letter words disabled except srvr, please refer to
 
 4. Setting up Kafka
 
-Add the following line to config/server.properties 
+Add the following line to config/server.properties
 ```advertised.listeners=PLAINTEXT://<your.public.IP>:9092```
 
 Start Kafka Server. First without the ```-daemon``` and make sure the server started. Then run the following.
@@ -108,3 +164,6 @@ REF2: https://medium.com/@maftabali2k13/setting-up-a-kafka-cluster-on-ec2-1b3714
 
 
 
+--------
+
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>

@@ -25,10 +25,10 @@ import re
 import numpy as np
 import pandas as pd
 
-import tu_pystream.nedc_pystream as ps
-from par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
+from src.data import tu_pystream as ps
+from src.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
     STD_CHANNEL_01_AR
-from preprocess import preprocess
+from src.data.preprocess import preprocess
 
 
 def get_all_edfs():

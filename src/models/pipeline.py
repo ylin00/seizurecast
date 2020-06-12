@@ -1,20 +1,19 @@
 """From raw data to evaluated model"""
 import pickle
-from time import time
 
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 
-from Result import Result, Results
-from dataset_funcs import balance_ds, get_power, get_power_freq
-from file_io import dataset_from_many_edfs, get_all_edfs
+from src.models.Result import Result, Results
+from src.features.dataset_funcs import balance_ds, get_power, get_power_freq
+from src.data.file_io import dataset_from_many_edfs, get_all_edfs
 import numpy as np
 
-from model import evaluate_model
-from par import LABEL_BKG, LABEL_PRE
-from utils import dataset2Xy
+from src.models.model import evaluate_model
+from src.models.par import LABEL_BKG, LABEL_PRE
+from src.utils import dataset2Xy
 
 
 class TrainError(Exception):
@@ -47,7 +46,7 @@ class Pipeline:
         self.results = Results()
 
     def dump_xy(self):
-        with open('xy.pkl', 'wb') as fp:
+        with open('../../data/processed/xy.pkl', 'wb') as fp:
             for ipath, token_path in enumerate(self.token_paths):
                 if self.__verbose:
                     print(f'dumping: {token_path}')
@@ -56,7 +55,7 @@ class Pipeline:
 
     def load_xy(self):
         X, y = [], []
-        with open('xy.pkl', 'rb') as fp:
+        with open('../../data/processed/xy.pkl', 'rb') as fp:
             for i in range(0, 1000000):
                 try:
                     _X, _y = pickle.load(fp)
@@ -193,7 +192,7 @@ if __name__ == '__main__':
     pipe.pipe()
 
     # save the RF classifier
-    with open('model.pkl', 'wb') as f:
+    with open('../../models/model.pkl', 'wb') as f:
         pickle.dump(pipe.results.results['rf'].model, f)
 
     pipe.results.plot_roc_curve()

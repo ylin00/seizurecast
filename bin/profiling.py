@@ -1,7 +1,7 @@
 from time import time
 import cProfile, pstats, io
-from file_io import get_all_edfs
-from pipeline import Config, Pipeline
+from src.data.file_io import get_all_edfs
+from src.models.pipeline import Config, Pipeline
 
 
 def run_code():

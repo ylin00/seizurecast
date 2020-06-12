@@ -5,12 +5,12 @@ Author:
     Yanxian Lin, Insight Health Data Science Fellow, Boston 2020
 """
 import pickle
-from confluent_kafka import Producer, Consumer, KafkaError
+from confluent_kafka import Producer, Consumer
 from collections import deque
 from time import time
-from EEGStreamer import KALFK_BROKER_ADDRESS, CONSUMER_TOPIC, STREAMER_TOPIC, \
+from src.EEGStreamer.EEGStreamer import KALFK_BROKER_ADDRESS, CONSUMER_TOPIC, STREAMER_TOPIC, \
     sleep_and_sync, decode
-from dataset_funcs import bin_power_avg
+from src.features.dataset_funcs import bin_power_avg
 
 DEBUG = True
 
@@ -69,7 +69,7 @@ class EEGStreamProcessor:
 
     def setup(self):
         self.consumer.subscribe([STREAMER_TOPIC])
-        with open('model.pkl', 'rb') as fp:
+        with open('../../models/model.pkl', 'rb') as fp:
             self.model = pickle.load(fp)
 
     def start(self):

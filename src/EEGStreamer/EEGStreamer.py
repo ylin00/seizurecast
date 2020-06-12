@@ -135,7 +135,7 @@ class EEGStreamer:
         self.consumer.subscribe([self.consumer_topic])
 
         # read in txt files, fake a stream data
-        txt_file = './data/svdemo-3bkg-3pre-3bkg-3pre.txt'
+        txt_file = '../../data/raw/svdemo-3bkg-3pre-3bkg-3pre.txt'
         ds = np.tile(np.loadtxt(txt_file, delimiter=','), [1, 10])
         montage = self.montage
 

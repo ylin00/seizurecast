@@ -1,4 +1,4 @@
-from feature import *
+from src.features.feature import *
 import numpy.testing as nptesting
 
 

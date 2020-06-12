@@ -1,6 +1,7 @@
 __pycache__
 .idea
 .DS_Store
+.pytest_cache
 
 # notebook
 .ipynb_checkpoints/
@@ -8,5 +9,6 @@ __pycache__
 # tmp
 tmp/
 log/
+arv/
 
 *.pkl

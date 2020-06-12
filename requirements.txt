@@ -1,3 +1,11 @@
+
+# External packages
+numpy
+scipy
+pandas
+matplotlib
 streamlit
 sklearn
+
+# Github repos
 git+https://github.com/forrestbao/pyeeg.git

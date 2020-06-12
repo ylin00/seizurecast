@@ -3,10 +3,9 @@ import time
 import streamlit as st
 import numpy as np
 
-from EEGStreamProcessor import EEGStreamProcessor, StreamerOptions
-from EEGStreamer import sleep_and_sync, decode
-from dataset_funcs import bin_power_avg
-from sklearn import preprocessing
+from src.EEGStreamer.EEGStreamProcessor import EEGStreamProcessor, StreamerOptions
+from src.EEGStreamer.EEGStreamer import sleep_and_sync, decode
+from src.features.dataset_funcs import bin_power_avg
 import pickle
 import matplotlib.pyplot as plt
 
@@ -124,7 +123,7 @@ class App(EEGStreamProcessor):
             ds = np.loadtxt(uploaded_file, delimiter=',')
 
             X = bin_power_avg([ds], fsamp=self.__fsamp)
-            with open('model.pkl', 'rb') as fp:
+            with open('../../models/model.pkl', 'rb') as fp:
                 clf = pickle.load(fp)
             res = clf.predict(X)[0]
             st.write(res)
