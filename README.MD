@@ -2,31 +2,33 @@
 1. Setup EC2 running ubuntu 18.04
 Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html
 
+* Set up security group to allow streamlit port 8501 visted from private IP.
+
 2. Git clone your app (github repo) to the server
 
-2.5. Install Streamlit *using sudo*
+* Install Streamlit *using sudo*
 ```sudo python3 -m pip install streamlit```
-Check the following: 
+* Test the streamlit is installed properly. The following line should pass.
 ```streamlit -h```
 
-3. Install tmux and run a session.\\
-3.1. new session: 
+3. Install tmux and run a session.
+* new session: 
 `tmux new -s my_session`
 
-3.2. run streamlit app: 
+* run streamlit app: 
 `streamlit run app.py`
 
-3.3. detach session by key sequence Ctrl-b + d to detach from the session
+* detach session by key sequence Ctrl-b + d to detach from the session
 
-3.4. (optional) kill all sessoins:
+* (optional) kill all sessoins:
 ```tmux kill-session -a```
 
 4. Install nginx and 
 
-4.1.
+* Run
 ``` sudo vim /etc/nginx/sites-enabled/streamlit```
 
-Add the following
+* Add the following (Change `YOUR_DOMAIN_NAME_NO_SLASH` to your domain name)
 ```
 server {
         listen 80;
@@ -48,7 +50,7 @@ server {
 
 And save it by `:wq`
 
-4.2. Reload nginx configures.
+* Reload nginx configures.
 ```
 sudo nginx -s reload
 ```
@@ -65,7 +67,8 @@ The real-time modeling will be done by EEGStreamProcessor.py.
 
 REF: https://dzone.com/articles/installing-and-running-kafka-on-an-aws-instance
 
-1. Setting up EC2
+1. Setting up EC2 security group.
+
 2. Installing Apache Kafka
 3. Running Zookeeper
 
@@ -74,12 +77,34 @@ Running the following srvr command, should return a list of the server details.
 Note: 3.5.3-beta has all four letter words disabled except srvr, please refer to the doc here: http://zookeeper.apache.org/doc/r3.5.3-beta/zookeeperAdmin.html
 
 4. Setting up Kafka
-advertised.listeners=PLAINTEXT://<kafkahostname or IP>:9092
 
-```bin/kafka-server-start.sh -daemon config/server.properties```
+Add the following line to config/server.properties 
+```advertised.listeners=PLAINTEXT://<your.public.IP>:9092```
 
+Start Kafka Server. First without the ```-daemon``` and make sure the server started. Then run the following.
+```
+bin/kafka-server-start.sh -daemon config/server.properties
+```
+
+Test Kafka Server is up and running.
 ```
 bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic testTopic
 ```
+Test producer is working by run the following lines and send any messages.
+```
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic testTopic
+```
+Test consumer is working.
+```
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic testTopic --from-beginning
+```
 
-REF: https://stackoverflow.com/questions/43565698/connecting-kafka-running-on-ec2-machine-from-my-local-machine
+5. Test on Python script
+Broker address is YOUR_IP:9092
+
+6. Kafka & EC2 references
+REF1: https://stackoverflow.com/questions/43565698/connecting-kafka-running-on-ec2-machine-from-my-local-machine
+REF2: https://medium.com/@maftabali2k13/setting-up-a-kafka-cluster-on-ec2-1b37144cb4e
+
+
+
