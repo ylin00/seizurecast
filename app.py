@@ -43,6 +43,7 @@ class App(EEGStreamProcessor):
             print(f'Cycle: {isamp}/{nsamp}') if DEBUG else None
             self.read_in()
             self.update_plot()
+            self.show_alert()
             self.preprocess()
             self.predict()
             self.publish()
@@ -86,6 +87,13 @@ class App(EEGStreamProcessor):
 
             self.__lines[ch].set_ydata(ydata)
         self.__st_plot.pyplot(plt)
+
+    def show_alert(self):
+        """show alarm"""
+        if self._result[0] == 1 or self._result[0] == 'pres':
+            st.write('!!!!!!SEIZURE IS COMMING in 10~15 minutes!!!!')
+        else:
+            st.write('All good. No seizure in the next 10~15 minutes.')
 
     def title(self):
         st.title('SeizureCast')
