@@ -90,7 +90,8 @@ class App(EEGStreamProcessor):
 
     def show_alert(self):
         """show alarm"""
-        if self._result[0] == 1 or self._result[0] == 'pres':
+        if len(self._result) > 0 and \
+                (self._result[0] == 1 or self._result[0] == 'pres'):
             st.write('!!!!!!SEIZURE IS COMMING in 10~15 minutes!!!!')
         else:
             st.write('All good. No seizure in the next 10~15 minutes.')
