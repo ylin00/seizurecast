@@ -67,16 +67,19 @@ class Pipeline:
 
     def pipe(self):
         X, y = self.load_xy()
-        self.scores_CV, self.scores_Test, eval_result = self.__eval_many(X, y)
+        self.scores_CV, self.scores_Test, eval_result, models = \
+            self.__eval_many(X, y)
 
         # convert to results
-        for model, evls in eval_result.items():
+        for key, evls in eval_result.items():
             res = Result()
+            res.model_name = key
+            res.model = models[key]
             res.model_tpr = evls['model_tpr']
             res.model_fpr = evls['model_fpr']
             res.base_tpr = evls['base_tpr']
             res.base_fpr = evls['base_fpr']
-            self.results.append(model, res)
+            self.results.append(key, res)
         self.results.data_size = len(X)
         self.results.cross_val_fold = self.__ncv
         self.results.test_size = self.__test_size
@@ -172,21 +175,25 @@ class Pipeline:
                         'model_fpr':model_fpr,
                         'model_tpr':model_tpr}
 
-        return cvscores, scores, evalres
+        return cvscores, scores, evalres, clf
 
 
 if __name__ == '__main__':
     edfs = get_all_edfs()
     conf = Config()
     pipe = Pipeline(conf)
+
+    """Dump edf files to Xy (~ 6 hours)"""
     # pipe.token_paths = edfs['token_path'].to_numpy()
     # dump0 = time()
     # print(f'Dumping {len(pipe.token_paths)} files')
     # pipe.dump_xy()
     # print(f'Dump cost = {round(time()-dump0)} s')
 
-    # (pipe.load_xy())
     pipe.pipe()
-    #
-    print(pipe.scores_CV, pipe.scores_Test, pipe.results)
+
+    # save the RF classifier
+    with open('model.pkl', 'wb') as f:
+        pickle.dump(pipe.results.results['rf'].model, f)
+
     pipe.results.plot_roc_curve()

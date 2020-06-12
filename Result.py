@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 
 class Result:
-    model = ''
+    model_name = ''
+    model = None
     base_tpr=None
     base_fpr=None
     model_tpr=None
@@ -32,14 +33,14 @@ class Results:
         """Object for handling multiple Result's"""
         self.results = {}
 
-    def append(self, model:str, result:Result):
+    def append(self, key:str, result:Result):
         """
 
         Args:
-            model: key of the result
+            key: key of the result
             result: Result object
         """
-        self.results[model] = result
+        self.results[key] = result
 
     def plot_roc_curve(self):
         # Plot formatting
