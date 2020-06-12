@@ -234,21 +234,21 @@ def chop_signal(raw, n_sample_per_epoch:int):
 
 
 def signal_to_dataset(raw, fsamp, intvs, labels):
-    """return data and labels
+    """Segmentize raw data into list of epochs.
 
     returns dataset and label_array : a list of data, each block is 1
-    second, with fixed size. width is number of channels in certain standard
-    order.
+        second, with fixed size. width is number of channels in certain standard
+        order.
 
     Args:
         raw: EEG signals. Shape: (n_channel, n_sample).
-        fsamp(int): sampling rate. Unit: Hz
+        fsamp(int): sampling rate, i.e., window size of resulting epoch. Unit: Hz
         intvs: list of [start, end]. Unit: second
         labels: list of labels. Must be same len as INTVS
 
-    Returns:
-        tuple: dataset: list of data; (n_epochs, n_channels, n_sample_per_epoch), labels:
-        list of labels
+    Returns: tuple (dataset, labels):
+            - dataset: list of data; (n_epochs, n_channels, n_sample_per_epoch)
+            - labels: list of labels
 
     """
     ds, lbl = [], []
