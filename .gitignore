@@ -8,7 +8,7 @@ __pycache__
 
 # tmp
 tmp/
-log/
-arv/
+tmp/log/
+tmp/arv/
 
 *.pkl
