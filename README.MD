@@ -59,3 +59,27 @@ Test `YOUR_DOMAIN_NAME/google` should point to google.com.
 
 Test `YOUR_DOMAIN_NAME` should point to your app
 
+# Running Kafka on EC2
+
+The real-time modeling will be done by EEGStreamProcessor.py.
+
+REF: https://dzone.com/articles/installing-and-running-kafka-on-an-aws-instance
+
+1. Setting up EC2
+2. Installing Apache Kafka
+3. Running Zookeeper
+
+Running the following srvr command, should return a list of the server details.
+```echo srvr | nc localhost 2181```
+Note: 3.5.3-beta has all four letter words disabled except srvr, please refer to the doc here: http://zookeeper.apache.org/doc/r3.5.3-beta/zookeeperAdmin.html
+
+4. Setting up Kafka
+advertised.listeners=PLAINTEXT://<kafkahostname or IP>:9092
+
+```bin/kafka-server-start.sh -daemon config/server.properties```
+
+```
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic testTopic
+```
+
+REF: https://stackoverflow.com/questions/43565698/connecting-kafka-running-on-ec2-machine-from-my-local-machine
