@@ -108,13 +108,13 @@ class EEGStreamer:
         """topic for consumer"""
 
         # Streaming related configs
-        self.max_stream_duration = 1000
+        self.max_stream_duration = 10000
         """streaming duration in second"""
-        self.streaming_rate = 4
+        self.streaming_rate = 256
         """Streaming rate in Hz"""
         self.delay_refresh_intv = 1.0  # time in second
         """refresh interval in seconds"""
-        self.flush_interval = 0.1
+        self.flush_interval = 1
         """Flush interval for Producer. In second"""
 
         # Listening related configs
@@ -122,9 +122,9 @@ class EEGStreamer:
         """Interval in second of listening"""
 
         # Data related configs
-        self.sampling_rate = 400
+        self.sampling_rate = 256
         """samping rate in Hz"""
-        self.nchannel = 22
+        self.nchannel = 8
         """number of channels"""
         self.montage = '1020'
         """standard 10-20 montage"""
@@ -135,7 +135,7 @@ class EEGStreamer:
         self.consumer.subscribe([self.consumer_topic])
 
         # read in txt files, fake a stream data
-        txt_file = './data/svdemo-pre-1.txt'
+        txt_file = './data/svdemo-3bkg-3pre-3bkg-3pre.txt'
         ds = np.tile(np.loadtxt(txt_file, delimiter=','), [1, 10])
         montage = self.montage
 

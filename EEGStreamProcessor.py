@@ -12,28 +12,29 @@ from EEGStreamer import KALFK_BROKER_ADDRESS, CONSUMER_TOPIC, STREAMER_TOPIC, \
     sleep_and_sync, decode
 from dataset_funcs import bin_power_avg
 
-DEBUG = True
+DEBUG = False
 
 
 class StreamerOptions:
     def __init__(self):
 
         # Streaming related configs
-        self.max_stream_duration = 100
+        self.max_stream_duration = 10000000000
         """maximum duration in seconds. How long the Streamer should run?"""
-        self.streaming_rate = 1
+        self.streaming_rate = 10
         """streaming rate in Hz. Number of data to process per second. """
         self.delay_refresh_intv = 1/self.streaming_rate
         """refresh interval in seconds."""
 
         # Data related configs
-        self.sampling_rate = 400
-        """data sampling rate in Hz. Properties of the data. Should be 400. """
-        self.data_shape = [22, self.sampling_rate]  # nchannel x nsamples
+        self.sampling_rate = 256
+        """data sampling rate in Hz. Properties of the data. """
+        self.data_shape = [8, self.sampling_rate]  # nchannel x nsamples
         """shape of data. Number of channels x sampling rate."""
 
 
 class EEGStreamProcessor:
+
     def __init__(self, so: StreamerOptions):
         self.consumer = Consumer({
                 'bootstrap.servers': KALFK_BROKER_ADDRESS,
@@ -82,7 +83,7 @@ class EEGStreamProcessor:
         nsamp = max(1, int(self.max_stream_duration * self.streaming_rate))
         for isamp in range(0, nsamp):
 
-            print(f'Sample: {isamp}/{nsamp}') if DEBUG else None
+            print(f'Cycle: {isamp}/{nsamp}') if DEBUG else None
             self.read_in()
             self.preprocess()
             self.predict()
@@ -109,7 +110,7 @@ class EEGStreamProcessor:
             chunk_size -= 100
         msgs.extend(self.consumer.consume(num_messages=chunk_size, timeout=1))
 
-        print(f"msg = {msgs}") if DEBUG else None
+        print(f"Received {str(len(msgs))} messages") if DEBUG else None
 
         if msgs is None or len(msgs) <= 0:
             return None
@@ -158,7 +159,10 @@ class EEGStreamProcessor:
         for i in range(0, len(self.__pdata)):
             processed_data = self.__pdata.pop()
             processed_t = self.__pdata_t.pop()
-            predicted_rels = self.model.predict([processed_data])
+            try:
+                predicted_rels = self.model.predict([processed_data])
+            except ValueError:
+                return None
             self.__res.appendleft(predicted_rels[0])
             self.__res_t.appendleft(processed_t)
 
@@ -168,6 +172,11 @@ class EEGStreamProcessor:
             res = self.__res.pop()
             tim = self.__res_t.pop()
             joint_str = res
+            #Fixme: ductape the model prediction should be restricted
+            if res == 0:
+                joint_str = 'bckg'
+            elif res == 1:
+                joint_str = 'pres'
             key = 'key'
             value = "{'t':%.6f,'v':["%float(tim)+"'"+joint_str+"'"+"]}"
             self.producer.produce(CONSUMER_TOPIC, key=key, value=value)
@@ -176,6 +185,16 @@ class EEGStreamProcessor:
     def stop(self):
         self.consumer.close()
         pass
+
+    @property
+    def _streamqueue(self):
+        """Access to streamqueue"""
+        return self.__streamqueue
+
+    @property
+    def _result(self):
+        """Access to predicted results"""
+        return self.__res
 
 
 if __name__ == '__main__':
