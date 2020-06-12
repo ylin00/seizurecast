@@ -2,31 +2,33 @@
 1. Setup EC2 running ubuntu 18.04
 Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html
 
+* Set up security group to allow streamlit port 8501 visted from private IP.
+
 2. Git clone your app (github repo) to the server
 
-2.5. Install Streamlit *using sudo*
+* Install Streamlit *using sudo*
 ```sudo python3 -m pip install streamlit```
-Check the following: 
+* Test the streamlit is installed properly. The following line should pass.
 ```streamlit -h```
 
-3. Install tmux and run a session.\\
-3.1. new session: 
+3. Install tmux and run a session.
+* new session: 
 `tmux new -s my_session`
 
-3.2. run streamlit app: 
+* run streamlit app: 
 `streamlit run app.py`
 
-3.3. detach session by key sequence Ctrl-b + d to detach from the session
+* detach session by key sequence Ctrl-b + d to detach from the session
 
-3.4. (optional) kill all sessoins:
+* (optional) kill all sessoins:
 ```tmux kill-session -a```
 
 4. Install nginx and 
 
-4.1.
+* Run
 ``` sudo vim /etc/nginx/sites-enabled/streamlit```
 
-Add the following
+* Add the following (Change `YOUR_DOMAIN_NAME_NO_SLASH` to your domain name)
 ```
 server {
         listen 80;
@@ -48,7 +50,7 @@ server {
 
 And save it by `:wq`
 
-4.2. Reload nginx configures.
+* Reload nginx configures.
 ```
 sudo nginx -s reload
 ```
