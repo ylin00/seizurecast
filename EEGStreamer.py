@@ -11,7 +11,7 @@ from time import time, sleep
 from datetime import datetime
 import numpy as np
 
-KALFK_BROKER_ADDRESS = 'localhost:9092'  # TODO: Implement this
+KALFK_BROKER_ADDRESS = '3.130.148.125:9092'  # TODO: Implement this
 STREAMER_TOPIC = 'eegstream'
 CONSUMER_TOPIC = 'alert'
 DEBUG = 1
