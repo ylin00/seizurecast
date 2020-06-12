@@ -92,9 +92,11 @@ class App(EEGStreamProcessor):
         """show alarm"""
         if len(self._result) > 0 and \
                 (self._result[0] == 1 or self._result[0] == 'pres'):
-            st.write('!!!!!!SEIZURE IS COMMING in 10~15 minutes!!!!')
+            self.__status_text.text(
+                '!!!!!!SEIZURE IS COMMING in 10~15 minutes!!!!')
         else:
-            st.write('All good. No seizure in the next 10~15 minutes.')
+            self.__status_text.text(
+            'All good. No seizure in the next 10~15 minutes.')
 
     def title(self):
         st.title('SeizureCast')
@@ -139,6 +141,9 @@ class App(EEGStreamProcessor):
             line, = ax.plot(x, y)
             self.__lines.append(line)
         self.__st_plot = st.pyplot(plt)
+
+        # Status text
+        self.__status_text = st.empty()
 
 
     # def demo_plot(self):
