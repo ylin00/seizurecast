@@ -56,6 +56,7 @@ def get_power(dataset, fsamp:int, band=range(0, 45)):
     return res
 
 
+# TODO: bin_power_avg == get_power ? change name
 def bin_power_avg(dataset, fsamp, Band=range(0,45)):
     """"""
     DeprecationWarning()
@@ -89,6 +90,7 @@ def bin_power_avg(dataset, fsamp, Band=range(0,45)):
     return Xy
 
 
+# TODO: bin_power == get_power? remove reducdent
 def bin_power(dataset, fsamp, Band=range(0,45)):
     dataset_power = []
     for i, data in enumerate(dataset):

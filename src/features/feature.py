@@ -1,4 +1,15 @@
-"""Feature Engineering-related function"""
+"""Feature Engineering-related function
+
+Functions in this module must have the following syntax.
+
+TODO: implement function interface following https://realpython.com/python-interface/
+Args:
+    data(list): (num_of_channel, num_of_sample)
+Returns:
+    list: (a list of features)  #TODO: change current interface to adhere to this
+
+TODO: make use of catch 22
+"""
 import numpy as np
 import pyeeg
 

@@ -1,3 +1,7 @@
+"""
+This script profile the time cost of data preprocessing.
+
+"""
 from time import time
 import cProfile, pstats, io
 from src.data.file_io import get_all_edfs

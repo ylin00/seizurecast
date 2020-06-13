@@ -3,8 +3,9 @@ import time
 import streamlit as st
 import numpy as np
 
-from src.EEGStreamer.EEGStreamProcessor import EEGStreamProcessor, StreamerOptions
-from src.EEGStreamer.EEGStreamer import sleep_and_sync, decode
+# TODO: remove dependence on Processor and Streamer
+from exec.stream_processor.EEGStreamProcessor import EEGStreamProcessor, StreamerOptions
+from exec.streamer.EEGStreamer import sleep_and_sync, decode
 from src.features.dataset_funcs import bin_power_avg
 import pickle
 import matplotlib.pyplot as plt
@@ -43,7 +44,9 @@ class App(EEGStreamProcessor):
             self.read_in()
             self.update_plot()
             self.show_alert()
-            self.preprocess()
+            # TODO: add dashboard showing the history of seizure
+            # TODO: listening to Results from Processor and show alert, instead of process to get them on its own.
+            self.preprocess()  # Fixme: remove preprocess, predict, publish
             self.predict()
             self.publish()
 
@@ -193,6 +196,7 @@ class App(EEGStreamProcessor):
 
 app = App(StreamerOptions())
 app.title()
+# Fixme: sampling rate has no effect, remove it.
 app.box_sampling_rate()
 app.init_plot()
 app.start()

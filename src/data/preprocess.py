@@ -2,7 +2,7 @@ from scipy import signal
 import numpy as np
 import pandas as pd
 
-
+# TODO: rename s
 def preprocess(s, resample_factor=1.0, freq_range=[0.01, 0.1]):
     """Pre process
 

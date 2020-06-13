@@ -5,13 +5,15 @@ Step 1 and Step 2 in https://kafka.apache.org/quickstart
 1. run ```bin/zookeeper-server-start.sh config/zookeeper.properties```
 2. run ```bin/kafka-server-start.sh config/server.properties```
 """
+# TODO: add README
 import ast
 from confluent_kafka import Producer, Consumer, KafkaError
 from time import time, sleep
 from datetime import datetime
 import numpy as np
 
-KALFK_BROKER_ADDRESS = '3.130.148.125:9092'  # TODO: Implement this
+# TODO: Implement this as ini files. following https://docs.python.org/3/library/configparser.html
+KALFK_BROKER_ADDRESS = '3.130.148.125:9092'
 STREAMER_TOPIC = 'eegstream'
 CONSUMER_TOPIC = 'alert'
 DEBUG = 1
@@ -135,7 +137,7 @@ class EEGStreamer:
         self.consumer.subscribe([self.consumer_topic])
 
         # read in txt files, fake a stream data
-        txt_file = '../../data/raw/svdemo-3bkg-3pre-3bkg-3pre.txt'
+        txt_file = './data/raw/svdemo-3bkg-3pre-3bkg-3pre.txt'
         ds = np.tile(np.loadtxt(txt_file, delimiter=','), [1, 10])
         montage = self.montage
 

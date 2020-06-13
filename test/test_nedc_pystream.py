@@ -1,5 +1,5 @@
 import os
-from src.data import tu_pystream as ps
+from src.data.tu_pystream import nedc_pystream as ps
 import numpy.testing as testing
 
 
@@ -15,12 +15,10 @@ def test_nedc_load_parameters_lbl():
 
     """Load parameters"""
     ### load parameters
-    params1 = ps.nedc_load_parameters('tu_pystream/params_04.txt')
+    params1 = ps.nedc_load_parameters('src/data/tu_pystream/params_04.txt')
     params2 = ps.nedc_load_parameters_lbl(token_path + '.lbl')
 
     testing.assert_array_equal(params1.keys(), params2.keys())
     testing.assert_array_equal(params1['montage'], params2['montage'])
     testing.assert_array_equal(params1['channel_selection'], params2['channel_selection'])
     testing.assert_array_equal(params1['match_mode'], params2['match_mode'])
-
-

@@ -1,14 +1,20 @@
 """
-This script retrieves Kafka EEG stream and produces predicted results
+EEG Stream Processor
+
+Consuming EEG stream from Kafka and producing predicted results from given model.
 
 Author:
     Yanxian Lin, Insight Health Data Science Fellow, Boston 2020
 """
+# TODO: README
 import pickle
 from confluent_kafka import Producer, Consumer
 from collections import deque
 from time import time
-from src.EEGStreamer.EEGStreamer import KALFK_BROKER_ADDRESS, CONSUMER_TOPIC, STREAMER_TOPIC, \
+
+# TODO: parse configs from ini files following https://docs.python.org/3/library/configparser.html
+# TODO: functions as utils
+from exec.streamer.EEGStreamer import KALFK_BROKER_ADDRESS, CONSUMER_TOPIC, STREAMER_TOPIC, \
     sleep_and_sync, decode
 from src.features.dataset_funcs import bin_power_avg
 
@@ -69,7 +75,7 @@ class EEGStreamProcessor:
 
     def setup(self):
         self.consumer.subscribe([STREAMER_TOPIC])
-        with open('../../models/model.pkl', 'rb') as fp:
+        with open('./models/model.pkl', 'rb') as fp:
             self.model = pickle.load(fp)
 
     def start(self):

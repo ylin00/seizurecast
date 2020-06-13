@@ -141,6 +141,7 @@ class Pipeline:
         clf['lg'] = LogisticRegression(random_state=0, max_iter=2000)
         clf['rf'] = RandomForestClassifier(n_estimators=40, max_depth=None,
                                            min_samples_split=3, random_state=0)
+        # TODO: CNN+LSTM model
 
         # cv
         cvscores = {}
