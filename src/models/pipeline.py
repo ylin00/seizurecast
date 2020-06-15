@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from src.models.Result import Result, Results
 from src.features.dataset_funcs import balance_ds, get_power, get_power_freq
 from src.data.file_io import listdir_edfs
-from src.data.make_dataset import dataset_from_many_edfs
+from src.data.make_dataset import make_dataset
 import numpy as np
 
 from src.models.model import evaluate_model
@@ -86,11 +86,11 @@ class Pipeline:
 
     def __Xy_from_one(self, token_path):
         # load dataset
-        dataset, labels = dataset_from_many_edfs([token_path],
-                                                 len_pre=self.LEN_PRE,
-                                                 len_post=self.LEN_POS,
-                                                 sec_gap=self.SEC_GAP,
-                                                 fsamp=self.SAMPLING_RATE)
+        dataset, labels = make_dataset([token_path],
+                                       len_pre=self.LEN_PRE,
+                                       len_post=self.LEN_POS,
+                                       sec_gap=self.SEC_GAP,
+                                       fsamp=self.SAMPLING_RATE)
 
         # balance data
         dataset, labels = balance_ds(dataset, labels, seed=100)

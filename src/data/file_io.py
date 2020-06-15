@@ -256,7 +256,3 @@ def signal_to_dataset(raw, fsamp, intvs, labels):
         ds.extend(chopped_sig)
         lbl.extend([labels[i]] * len(chopped_sig))
     return ds, lbl
-
-
-def plot_eeg(dataframe, tmin, tmax, fsamp):
-    dataframe[slice(int(tmin*fsamp), int(tmax*fsamp))].plot(legend=False)

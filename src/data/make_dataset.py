@@ -1,18 +1,15 @@
-import psycopg2
-import sys, os
 import numpy as np
 import pandas as pd
-import pandas.io.sql as psql
-import notebooks.example_psql as creds
 from sqlalchemy import create_engine
+# TODO: move this to config.ini
+import notebooks.example_psql as creds
 from src.data import file_io
 from src.data.file_io import read_1_token, sort_channel, load_tse_bi, relabel_tse_bi, signal_to_dataset
 from src.data.preprocess import preprocess
-from src.features.dataset_funcs import get_features
-
-# Create connection to postgresql
 from src.models.par import STD_CHANNEL_01_AR
 
+# TODO: move this to setup/config.ini
+# Create connection to postgresql
 engine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{creds.PGHOST}:5432/{creds.PGDATABASE}')
 
 
@@ -30,7 +27,7 @@ def new_tables():
     df.append(df2).to_sql('seiz_bckg', engine, if_exists='replace')
 
 
-def dataset_from_many_edfs(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=300, sec_gap=0, fsamp=256):
+def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=300, sec_gap=0, fsamp=256):
     """Read and process a list of edf files
 
     Args:
