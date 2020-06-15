@@ -1,6 +1,7 @@
 import pickle
 
 import numpy as np
+import pandas as pd
 from pandas import DataFrame
 
 
@@ -71,3 +72,36 @@ def dataset2Xy(ds_pwd, labels):
     X = ds_pwd.transpose([0, 2, 1]).reshape(-1, nc * ns)
     y = np.array(labels)
     return X, y
+
+
+def dataset_3d_to_2d(dataset):
+    """Convert 3D feature dataset to 2D
+
+    Args:
+        dataset: 3D list of nepoch x nchannel x nfeatures
+    Returns:
+        np.array: 2D-array of (nfeatures x nchannel) x (nepoch)
+    """
+    n1, n2, n3 = np.shape(dataset)
+    return np.array(dataset).transpose([1,2,0]).reshape([n2*n3,n1])
+
+
+def dataset_to_df(dataset, labels):
+    """Convert numpy array DATASET, LABELS to pd.DataFrame
+
+    Args:
+        dataset: size nepoch x nchannel x nsamples/nfeatures
+        labels: nepoch x 1
+    Returns:
+        pd.DataFrame: nrow = nepoch x nsamples; ncol = nchannel + 1
+    """
+    ds_pwd = np.array(dataset)
+    ne, nc, ns = np.shape(ds_pwd)
+    df_pwd = pd.DataFrame(ds_pwd.transpose([0,2,1]).reshape(-1, np.shape(ds_pwd)[1]),
+                         columns=['ch'+ str(i) for i in np.arange(0, nc)])
+    df_pwd = df_pwd.assign(labels = np.repeat(labels, ns))\
+        .assign(epoch = np.repeat(np.arange(0, ne), ns))
+    return df_pwd
+
+
+locate = lambda listOfElems, elem: [ i for i in range(len(listOfElems)) if listOfElems[i] == elem ]

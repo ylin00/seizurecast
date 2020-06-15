@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 
 from src.models.Result import Result, Results
-from src.features.dataset_funcs import balance_ds, get_power, get_power_freq
+from src.features.dataset_funcs import balance_ds, bin_power, bin_power_freq
 from src.data.file_io import listdir_edfs
 from src.data.make_dataset import make_dataset
 import numpy as np
@@ -98,10 +98,10 @@ class Pipeline:
         print(f"Collected {len(labels)} data points") if self.__verbose else None
 
         # feature extraction
-        dataset_power = get_power(dataset, fsamp=self.SAMPLING_RATE)
+        dataset_power = bin_power(dataset, fsamp=self.SAMPLING_RATE)
 
         # convert to Xy
-        ds_pwd = get_power_freq(dataset_power)
+        ds_pwd = bin_power_freq(dataset_power)
         X, y = dataset2Xy(ds_pwd, labels)
 
         return X, y

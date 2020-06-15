@@ -1,4 +1,4 @@
-from src.features.dataset_funcs import ds3to2
+from src.utils import dataset_3d_to_2d
 import numpy as np
 
 
@@ -12,7 +12,7 @@ def test_ds3to2():
          [3,2,1]]
     ])
     np.testing.assert_array_equal(
-        ds3to2(input),
+        dataset_3d_to_2d(input),
         np.array(
          [
              [1,9],
