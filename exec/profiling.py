@@ -4,12 +4,12 @@ This script profile the time cost of data preprocessing.
 """
 from time import time
 import cProfile, pstats, io
-from src.data.file_io import get_all_edfs
+from src.data.file_io import listdir_edfs
 from src.models.pipeline import Config, Pipeline
 
 
 def run_code():
-    edfs = get_all_edfs()
+    edfs = listdir_edfs()
     conf = Config()
     pipe = Pipeline(conf)
     pipe.token_paths = edfs.sample(4,random_state=0)['token_path'].to_numpy()

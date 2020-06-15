@@ -31,7 +31,7 @@ from src.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN
 from src.data.preprocess import preprocess
 
 
-def get_all_edfs(directory='~/github/ids/tusz_1_5_2/edf/train/01_tcp_ar',
+def listdir_edfs(directory='~/github/ids/tusz_1_5_2/edf/train/01_tcp_ar',
                  columns=('tcp_type', 'patient_group', 'patient',
                           'session', 'token')):
     """Returns all edf filepaths in a DataFrame
@@ -208,7 +208,7 @@ def sort_channel(raw, ch_labels, std_labels=STD_CHANNEL_01_AR):
 
     """
     if len(set(ch_labels).intersection(set(std_labels))) < len(std_labels):
-        return None
+        raise Exception('Channel labels must match the length of std_labels')
     else:
         return [raw[i] for i in [ch_labels.index(lbl) for lbl in std_labels]]
 
@@ -265,7 +265,7 @@ def plot_eeg(dataframe, tmin, tmax, fsamp):
 
 
 # TODO: move to make_dataset.py
-def dataset_from_many_edfs(token_files, len_pre, len_post, sec_gap, fsamp=256):
+def dataset_from_many_edfs(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=300, sec_gap=0, fsamp=256):
     """Read and process a list of edf files
 
     Args:
@@ -288,7 +288,7 @@ def dataset_from_many_edfs(token_files, len_pre, len_post, sec_gap, fsamp=256):
         f = int(np.mean(f))
 
         # sort channel label
-        s = sort_channel(s, l, STD_CHANNEL_01_AR)
+        s = sort_channel(s, l, std_labels=montage)
 
         # load labeling file
         intvs, labls = load_tse_bi(tf)

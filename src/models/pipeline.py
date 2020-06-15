@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 
 from src.models.Result import Result, Results
 from src.features.dataset_funcs import balance_ds, get_power, get_power_freq
-from src.data.file_io import dataset_from_many_edfs, get_all_edfs
+from src.data.file_io import dataset_from_many_edfs, listdir_edfs
 import numpy as np
 
 from src.models.model import evaluate_model
@@ -179,7 +179,7 @@ class Pipeline:
 
 
 if __name__ == '__main__':
-    edfs = get_all_edfs()
+    edfs = listdir_edfs()
     conf = Config()
     pipe = Pipeline(conf)
 
