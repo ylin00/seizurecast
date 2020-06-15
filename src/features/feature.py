@@ -21,7 +21,7 @@ def power_and_freq(data):
         data: num_of_channel x num_of_freq
 
     Returns:
-        data: num_of_channel x 3
+        data: num_of_channel x 2 (pwd, freq)
     """
     res0 = []
     for channel in data:
