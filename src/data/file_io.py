@@ -25,29 +25,27 @@ import re
 import numpy as np
 import pandas as pd
 
-from src.data import tu_pystream as ps
+from src.data.tu_pystream import nedc_pystream as ps
 from src.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
     STD_CHANNEL_01_AR
 from src.data.preprocess import preprocess
 
 
-def get_all_edfs():
+def get_all_edfs(directory='~/github/ids/tusz_1_5_2/edf/train/01_tcp_ar',
+                 columns=('tcp_type', 'patient_group', 'patient',
+                          'session', 'token')):
     """Returns all edf filepaths in a DataFrame
 
     Returns:
         pd.DataFrame: filepaths
     """
-    columns = (
-    'path0', 'path1', 'path2', 'path3', 'tcp_type', 'patient_group', 'patient',
-    'session', 'token')
-
-    filelist = glob.glob(
-        os.path.join('../tusz_1_5_2/edf/train/01_tcp_ar', '**', '*.edf'),
-        recursive=True)
+    filelist = glob.glob(os.path.join(directory, '**', '*.edf'), recursive=True)
     fparts = [re.split('/|[.]edf', filename)[:-1] for filename in filelist]
 
-    df = pd.DataFrame(
-        {key: value for key, value in zip(tuple(columns), tuple(zip(*fparts)))})
+    if len(fparts[0]) > len(columns):
+        columns = ['path'+str(i) for i in range(0, len(fparts[0])-len(columns))] + list(columns)
+
+    df = pd.DataFrame({key: value for key, value in zip(tuple(columns), tuple(zip(*fparts)))})
 
     # A very complicated lambda function
     return df.assign(token_path=lambda x: eval(
@@ -266,6 +264,7 @@ def plot_eeg(dataframe, tmin, tmax, fsamp):
     dataframe[slice(int(tmin*fsamp), int(tmax*fsamp))].plot(legend=False)
 
 
+# TODO: move to make_dataset.py
 def dataset_from_many_edfs(token_files, len_pre, len_post, sec_gap, fsamp=256):
     """Read and process a list of edf files
 
