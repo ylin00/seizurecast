@@ -1,4 +1,4 @@
-from src.features.feature import power_and_freq, power
+from seizurecast.features.feature import power_and_freq, power
 import numpy as np
 
 

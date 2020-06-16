@@ -1,5 +1,5 @@
 import os
-from src.data.tu_pystream import nedc_pystream as ps
+from seizurecast.data.tu_pystream import nedc_pystream as ps
 import numpy.testing as testing
 
 

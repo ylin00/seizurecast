@@ -4,11 +4,8 @@ import pandas as pd
 
 
 class Pipeline_sql(Pipeline):
-    def __init__(self):
+    def __init__(self, conf=Config()):
         """Pipeline for SQL based training"""
-        conf = Config()
-        conf.sec_gap = 0
-        conf.len_pre = 180
         super(Pipeline_sql, self).__init__(conf)
 
     def dump_xy(self):
@@ -17,7 +14,7 @@ class Pipeline_sql(Pipeline):
 
     def load_xy(self):
         """Load X, y from SQL"""
-        from src.to_sql import SQLengine
+        from seizurecast.features.to_sql import SQLengine
         df = pd.read_sql_table('features', SQLengine)
         X, y_ = df.iloc[:, 0:24*8].to_numpy(), df.loc[:,['post','pres']].to_numpy()
 

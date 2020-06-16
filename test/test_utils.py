@@ -1,4 +1,4 @@
-from src.utils import *
+from seizurecast.utils import *
 from numpy.testing import assert_array_equal
 
 

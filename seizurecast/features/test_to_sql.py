@@ -1,5 +1,5 @@
 import pandas as pd
-from src.to_sql import SQLengine
+from seizurecast.features.to_sql import SQLengine
 
 
 def disabled_test_write_tables_to_sql():

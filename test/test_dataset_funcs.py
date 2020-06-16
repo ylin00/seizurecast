@@ -1,4 +1,4 @@
-from src.utils import dataset_3d_to_2d
+from seizurecast.utils import dataset_3d_to_2d
 import numpy as np
 
 

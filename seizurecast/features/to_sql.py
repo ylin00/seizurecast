@@ -28,7 +28,7 @@ def write_tables_to_sql():
 
 def __feature_1_token(tk, fsamp=256, verbose=False):
     """Generate feature from 1 token file"""
-    print(f"Processing token: ...{tk[-10:]}") if verbose else None
+    print(f"Processing token: ...{tk[-14:]}") if verbose else None
 
     ds, _ = make_dataset([tk], len_pre=0, len_post=0, sec_gap=0, fsamp=fsamp)
 
@@ -43,15 +43,25 @@ def __feature_1_token(tk, fsamp=256, verbose=False):
     return df
 
 
-def write_features_to_sql(verbose=True):
+def write_features_to_sql(indexes=(0, -1), verbose=True):
+    """
+
+    Args:
+        indexes(tuple): (start, end) the range of index to write to sql.
+        verbose:
+
+    Returns:
+
+    """
     fsamp = 256
+    beg, end = indexes
 
     print("Only touch the train set and the tcp_type of 01") if verbose else None
     tks = pd.read_sql("select token, token_path from directory where train_test = 'train' and tcp_type = '01_tcp_ar';",
                       SQLengine)
 
     nbatch = tks.shape[0]
-    for (index, Series) in tks.iterrows():
+    for (index, Series) in tks.iloc[beg:end, :].iterrows():
 
         print(f"Processing batch {str(index)}/{str(nbatch)}")
         df = __feature_1_token(Series['token_path'], fsamp=fsamp, verbose=verbose) \

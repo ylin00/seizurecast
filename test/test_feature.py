@@ -1,4 +1,4 @@
-from src.features.feature import *
+from seizurecast.features.feature import *
 import numpy.testing as nptesting
 
 
