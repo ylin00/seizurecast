@@ -24,8 +24,8 @@ import re
 
 import pandas as pd
 
-from src.data.tu_pystream import nedc_pystream as ps
-from src.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
+from seizurecast.data.tu_pystream import nedc_pystream as ps
+from seizurecast.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
     STD_CHANNEL_01_AR
 
 
@@ -105,7 +105,7 @@ def read_1_patient(patient_folder):
         standard data TBD
 
     """
-    pass
+    raise NotImplementedError
 
 
 def load_tse_bi(token_path):
@@ -117,8 +117,7 @@ def load_tse_bi(token_path):
             /00001234_s001_t000
 
     Returns:
-        intvs: list of intervals
-        labels: list of labels
+        tuple: intvs - list of intervals.   labels - list of labels.
 
     """
     intvs, labels = [], []

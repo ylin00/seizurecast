@@ -6,15 +6,15 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 
-from src.models.Result import Result, Results
-from src.features.dataset_funcs import balance_ds, bin_power, bin_power_freq
-from src.data.file_io import listdir_edfs
-from src.data.make_dataset import make_dataset
+from seizurecast.models.Result import Result, Results
+from seizurecast.features.dataset_funcs import balance_ds, bin_power, bin_power_freq
+from seizurecast.data.file_io import listdir_edfs
+from seizurecast.data.make_dataset import make_dataset
 import numpy as np
 
-from src.models.model import evaluate_model
-from src.models.par import LABEL_BKG, LABEL_PRE
-from src.utils import dataset2Xy
+from seizurecast.models.model import evaluate_model
+from seizurecast.models.par import LABEL_BKG, LABEL_PRE
+from seizurecast.utils import dataset2Xy
 
 
 class TrainError(Exception):
@@ -31,6 +31,7 @@ class Config:
 
 class Pipeline:
     def __init__(self, config:Config):
+        """Pipeline for offline data processing and modeling"""
         self.token_paths = None
         self.LEN_PRE, self.LEN_POS, self.SEC_GAP, self.SAMPLING_RATE = \
             config.len_pre, config.len_pos, config.sec_gap, config.sampl_r
@@ -51,7 +52,7 @@ class Pipeline:
             for ipath, token_path in enumerate(self.token_paths):
                 if self.__verbose:
                     print(f'dumping: {token_path}')
-                _X, _y = self.__Xy_from_one(token_path)
+                _X, _y = self.load_data(token_path)
                 pickle.dump((_X, _y), fp)
 
     def load_xy(self):
@@ -68,7 +69,7 @@ class Pipeline:
     def pipe(self):
         X, y = self.load_xy()
         self.scores_CV, self.scores_Test, eval_result, models = \
-            self.__eval_many(X, y)
+            self.validate_fit_eval(X, y)
 
         # convert to results
         for key, evls in eval_result.items():
@@ -84,7 +85,7 @@ class Pipeline:
         self.results.cross_val_fold = self.__ncv
         self.results.test_size = self.__test_size
 
-    def __Xy_from_one(self, token_path):
+    def load_data(self, token_path):
         # load dataset
         dataset, labels = make_dataset([token_path],
                                        len_pre=self.LEN_PRE,
@@ -117,7 +118,7 @@ class Pipeline:
         X, y = balance_ds(X, y, seed=100)
         return X, y
 
-    def __eval_many(self, X, y):
+    def validate_fit_eval(self, X, y):
         """Evaluate X and y"""
         X, y = self.__post_process(X, y)
 

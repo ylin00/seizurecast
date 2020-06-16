@@ -15,7 +15,7 @@ def test_nedc_load_parameters_lbl():
 
     """Load parameters"""
     ### load parameters
-    params1 = ps.nedc_load_parameters('src/data/tu_pystream/params_04.txt')
+    params1 = ps.nedc_load_parameters('seizurecast/data/tu_pystream/params_04.txt')
     params2 = ps.nedc_load_parameters_lbl(token_path + '.lbl')
 
     testing.assert_array_equal(params1.keys(), params2.keys())

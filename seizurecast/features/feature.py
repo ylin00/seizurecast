@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pyeeg
 
-from src.utils import dataset_3d_to_2d
+from seizurecast.utils import dataset_3d_to_2d
 
 
 def power_and_freq(data):
@@ -169,15 +169,16 @@ def get_features(dataset):
         dataset: Pre-processed dataset, of size (nepoch, nchannel, nsamples)
 
     Returns:
-        tuple: size of nfeatures x nepoch.
+        pd.DataFrame: size of nfeatures x nepoch.
             If there are channel dependent features, list them in ch1.a, ch1.b, ..., chn.a, chn.b
     """
     #TODO: configs as argumnets
     fsamp = 256
     band = range(0, 45)
     c22feas = [[feature_channel(channel, fsamp=fsamp, band=band) for channel in epoch] for epoch in dataset]
-    c22feas = dataset_3d_to_2d(c22feas)
-    return pd.DataFrame({'f'+str(i):feature for i, feature in enumerate(c22feas)})
+    c22feas = dataset_3d_to_2d(c22feas)  # TODO: merge with dataset2Xy
+    df = pd.DataFrame({'f'+str(i):feature for i, feature in enumerate(c22feas)})
+    return df
 
 
 FEATURES = [

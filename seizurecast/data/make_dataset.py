@@ -1,30 +1,7 @@
 import numpy as np
-import pandas as pd
-from sqlalchemy import create_engine
-# TODO: move this to config.ini
-import notebooks.example_psql as creds
-from src.data import file_io
-from src.data.file_io import read_1_token, sort_channel, load_tse_bi, relabel_tse_bi, signal_to_dataset
-from src.data.preprocess import preprocess
-from src.models.par import STD_CHANNEL_01_AR
-
-# TODO: move this to setup/config.ini
-# Create connection to postgresql
-engine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{creds.PGHOST}:5432/{creds.PGDATABASE}')
-
-
-def new_tables():
-    # directory
-    df = file_io.listdir_edfs('/Users/yanxlin/github/ids/tusz_1_5_2/edf/')
-    df = df.rename(columns={'path7': 'train_test'})
-    df.to_sql('directory', con=engine, if_exists='replace')
-
-    # seiz-bckg
-    df = pd.read_table('/Users/yanxlin/github/ids/tusz_1_5_2/_DOCS/ref_train.txt', header=None, sep=' ',
-                       names=['token', 'time_start', 'time_end', 'label', 'prob']).assign(train_test='train')
-    df2 = pd.read_table('/Users/yanxlin/github/ids/tusz_1_5_2/_DOCS/ref_dev.txt', header=None, sep=' ',
-                        names=['token', 'time_start', 'time_end', 'label', 'prob']).assign(train_test='test')
-    df.append(df2).to_sql('seiz_bckg', engine, if_exists='replace')
+from seizurecast.data.file_io import read_1_token, sort_channel, load_tse_bi, relabel_tse_bi, signal_to_dataset
+from seizurecast.data.preprocess import preprocess
+from seizurecast.models.par import STD_CHANNEL_01_AR
 
 
 def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=300, sec_gap=0, fsamp=256):
