@@ -17,7 +17,7 @@ from seizurecast.models.par import LABEL_BKG, LABEL_PRE
 from seizurecast.utils import dataset2Xy
 
 
-class TrainError(Exception):
+class PipelineError(Exception):
     pass
 
 
@@ -47,12 +47,35 @@ class Pipeline:
         self.scores_Test = 0
         self.results = Results()
 
+        self.X, self.y = None, None
+        """Data and labels"""
+        self.use_labels = [LABEL_BKG, LABEL_PRE]
+        """subset of y labels used for classification"""
+
+        self.seed = 100
+        """random seed"""
+
+        # ========= Models =======
+        self.models = {}
+
+    def load_default_models(self):
+        # Models
+        clf = {}
+        # Linear Model
+        from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+        clf['lda'] = LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
+        clf['lg'] = LogisticRegression(random_state=0, max_iter=2000)
+        clf['rf'] = RandomForestClassifier(n_estimators=40, max_depth=None,
+                                           min_samples_split=3, random_state=0)
+        # TODO: CNN+LSTM model
+        self.models = clf
+
     def dump_xy(self):
         with open('../../data/processed/xy.pkl', 'wb') as fp:
             for ipath, token_path in enumerate(self.token_paths):
                 if self.__verbose:
                     print(f'dumping: {token_path}')
-                _X, _y = self.load_data(token_path)
+                _X, _y = self.read_file(token_path)
                 pickle.dump((_X, _y), fp)
 
     def load_xy(self, pkl_file='../../data/processed/xy.pkl'):
@@ -64,10 +87,16 @@ class Pipeline:
                     X.extend(_X), y.extend(_y)
                 except EOFError:
                     break
-        return X, y
+        self.X, self.y = X, y
 
     def pipe(self):
-        X, y = self.load_xy()
+        X, y = self.X, self.y
+        if X is None or y is None:
+            raise PipelineError('Data must be loaded before calling pipe()')
+
+        if len(self.models) == 0:
+            raise PipelineError('Model must be loaded before calling pipe()')
+
         self.scores_CV, self.scores_Test, eval_result, models = \
             self.validate_fit_eval(X, y)
 
@@ -85,7 +114,7 @@ class Pipeline:
         self.results.cross_val_fold = self.__ncv
         self.results.test_size = self.__test_size
 
-    def load_data(self, token_path):
+    def read_file(self, token_path):
         # load dataset
         dataset, labels = make_dataset([token_path],
                                        len_pre=self.LEN_PRE,
@@ -109,13 +138,13 @@ class Pipeline:
 
     def __post_process(self, X, y):
         # filtered out classes
-        id_bkg_pre = [any([yi == lbl for lbl in [LABEL_BKG, LABEL_PRE]]) for
+        id_bkg_pre = [any([yi == lbl for lbl in self.use_labels]) for
                       yi in y]
         X = np.array(X)[id_bkg_pre, :]
         y = np.array(y)[id_bkg_pre]
 
         # balance data again
-        X, y = balance_ds(X, y, seed=100)
+        X, y = balance_ds(X, y, seed=self.seed)
         return X, y
 
     def validate_fit_eval(self, X, y):
@@ -125,25 +154,17 @@ class Pipeline:
         print(f"Collected {len(y)} data points") if self.__verbose else None
 
         if len(np.unique(y)) < 2:
-            raise TrainError("# of unique values of y must >= 2")
+            raise PipelineError("# of unique values of y must >= 2")
 
         # Binarize the label
-        y_b = preprocessing.label_binarize(y, classes=[LABEL_BKG, LABEL_PRE])
+        y_b = preprocessing.label_binarize(y, classes=self.use_labels)
         y_b = np.reshape(y_b, (len(y_b),))
 
         # Train test split
         train_X, test_X, train_y, test_y = \
-            train_test_split(X, y_b, test_size=self.__test_size,random_state=41)
+            train_test_split(X, y_b, test_size=self.__test_size,random_state=self.seed)
 
-        # Models
-        clf = {}
-        # Linear Model
-        from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-        clf['lda'] = LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
-        clf['lg'] = LogisticRegression(random_state=0, max_iter=2000)
-        clf['rf'] = RandomForestClassifier(n_estimators=40, max_depth=None,
-                                           min_samples_split=3, random_state=0)
-        # TODO: CNN+LSTM model
+        clf = self.models
 
         # cv
         cvscores = {}
