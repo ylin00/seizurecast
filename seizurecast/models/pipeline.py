@@ -58,6 +58,9 @@ class Pipeline:
         # ========= Models =======
         self.models = {}
 
+    def reset(self):
+        self.results = Results()
+
     def load_default_models(self):
         # Models
         clf = {}
@@ -88,6 +91,10 @@ class Pipeline:
                 except EOFError:
                     break
         self.X, self.y = X, y
+
+    def load_xy_sql(self, table, engine):
+        """load x, y from sql table"""
+
 
     def pipe(self):
         X, y = self.X, self.y
@@ -156,7 +163,7 @@ class Pipeline:
         if len(np.unique(y)) < 2:
             raise PipelineError("# of unique values of y must >= 2")
 
-        # Binarize the label
+        # Binarize the label  #TODO: combine __post_process to pre_process
         y_b = preprocessing.label_binarize(y, classes=self.use_labels)
         y_b = np.reshape(y_b, (len(y_b),))
 

@@ -66,7 +66,16 @@ def array3D_to_dataframe(dataset, labels):
 
 
 def dataset2Xy(ds_pwd, labels):
-    """Convert dataset, labels to X, y for sklearn"""
+    """Convert dataset, labels to X, y for sklearn
+
+    Args:
+        ds_pwd: 3D array of shape n_epoch, n_channel, n_feature
+
+    Returns:
+        X, 2D array of shape n_epoch, n_channel x n_feature
+            fe-1-ch-1, fe-1-ch-2, ..., fe-n_fe-ch-n_ch
+        y, same shape as labels
+    """
     ds_pwd = np.array(ds_pwd)
     ne, nc, ns = np.shape(ds_pwd)
     X = ds_pwd.transpose([0, 2, 1]).reshape(-1, nc * ns)
