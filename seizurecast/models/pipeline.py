@@ -55,9 +55,9 @@ class Pipeline:
                 _X, _y = self.load_data(token_path)
                 pickle.dump((_X, _y), fp)
 
-    def load_xy(self):
+    def load_xy(self, pkl_file='../../data/processed/xy.pkl'):
         X, y = [], []
-        with open('../../data/processed/xy.pkl', 'rb') as fp:
+        with open(pkl_file, 'rb') as fp:
             for i in range(0, 1000000):
                 try:
                     _X, _y = pickle.load(fp)
