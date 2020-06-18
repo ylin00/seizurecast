@@ -12,25 +12,24 @@ class Pipeline_sql(Pipeline):
         """Dump X y to SQL"""
         raise NotImplementedError
 
-    def load_xy(self):
-        """Load X, y from SQL"""
-        from seizurecast.features.to_sql import SQLengine
-        df = pd.read_sql_table('features', SQLengine)
-        X, y_ = df.iloc[:, 0:24*8].to_numpy(), df.loc[:,['post','pres']].to_numpy()
+    # def load_xy(self, table, engine):
+    #     """Load X, y from SQL"""
+    #     from seizurecast.features.to_sql import SQLengine
+    #     df = pd.read_sql_table('features', SQLengine)
+    #     self.X, self.y = df.iloc[:, 0:24*8].to_numpy(), df.loc[:,['post','pres']].to_numpy()
 
+    def _postpres2labels(self):
         # y_ has two columns. Convert to y with labels
-        y = list(y_)
-        for i, y_i in enumerate(y_):
+        y = []
+        for i, y_i in enumerate(self.y):
             (post, pres) = y_i
             if post > self.LEN_POS and pres > self.SEC_GAP + self.LEN_PRE:
-                y[i] = LABEL_BKG
+                y.append(LABEL_BKG)
             elif post > self.LEN_POS and pres > self.SEC_GAP:
-                y[i] = LABEL_PRE
+                y.append(LABEL_PRE)
             else:
-                y[i] = LABEL_SEZ
-
-        return X, y
-
+                y.append(LABEL_SEZ)
+        self.y = y
 
 if __name__ == '__main__':
     psql = Pipeline_sql()

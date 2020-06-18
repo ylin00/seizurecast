@@ -92,9 +92,12 @@ class Pipeline:
                     break
         self.X, self.y = X, y
 
-    def load_xy_sql(self, table, engine):
+    def load_xy_sql(self, table, engine, col_X, col_y):
         """load x, y from sql table"""
-
+        import pandas
+        df = pandas.read_sql_table(table, engine)
+        self.X = df.iloc[:, col_X].to_numpy()
+        self.y = df.iloc[:, col_y].to_numpy()
 
     def pipe(self):
         X, y = self.X, self.y
