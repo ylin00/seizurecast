@@ -1,5 +1,5 @@
-from src.data.file_io import *
-from src.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS
+from seizurecast.data.file_io import *
+from seizurecast.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS
 
 
 def test_relabel():

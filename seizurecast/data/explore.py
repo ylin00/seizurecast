@@ -1,10 +1,10 @@
-from src.data.file_io import *
-from src import utils
+from seizurecast.data.file_io import *
+from seizurecast import utils
 import os
 import numpy as np
 
 # relabeling config
-from src.models.par import STD_CHANNEL_01_AR
+from seizurecast.models.par import STD_CHANNEL_01_AR
 
 LEN_PRE = 15
 LEN_POS = 60

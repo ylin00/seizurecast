@@ -4,12 +4,14 @@ This script profile the time cost of data preprocessing.
 """
 from time import time
 import cProfile, pstats, io
-from src.data.file_io import get_all_edfs
-from src.models.pipeline import Config, Pipeline
+from seizurecast.data.file_io import listdir_edfs
+from seizurecast.features.to_sql import write_features_to_sql
+from seizurecast.models.pipeline import Config, Pipeline
 
 
-def run_code():
-    edfs = get_all_edfs()
+# ... functions to profile
+def Pipeline_pipline():
+    edfs = listdir_edfs()
     conf = Config()
     pipe = Pipeline(conf)
     pipe.token_paths = edfs.sample(4,random_state=0)['token_path'].to_numpy()
@@ -19,11 +21,17 @@ def run_code():
     print(f'Dump cost = {round(time()-dump0)} s')
     pass
 
+
+def __write_features_to_sql():
+    write_features_to_sql()
+
+
+
 pr = cProfile.Profile()
 pr.enable()
 # ... do something ...
 
-run_code()
+__write_features_to_sql()
 
 pr.disable()
 s = io.StringIO()
@@ -31,5 +39,5 @@ sortby = 'cumulative'
 sortby = 'tottime'
 ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 ps.print_stats()
-ps.dump_stats('tmp/cprofile_dump')
+ps.dump_stats('../tmp/cprofile_dump')
 print(s.getvalue())

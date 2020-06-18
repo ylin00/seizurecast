@@ -6,17 +6,18 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 
-from src.models.Result import Result, Results
-from src.features.dataset_funcs import balance_ds, get_power, get_power_freq
-from src.data.file_io import dataset_from_many_edfs, get_all_edfs
+from seizurecast.models.Result import Result, Results
+from seizurecast.features.dataset_funcs import balance_ds, bin_power, bin_power_freq
+from seizurecast.data.file_io import listdir_edfs
+from seizurecast.data.make_dataset import make_dataset
 import numpy as np
 
-from src.models.model import evaluate_model
-from src.models.par import LABEL_BKG, LABEL_PRE
-from src.utils import dataset2Xy
+from seizurecast.models.model import evaluate_model
+from seizurecast.models.par import LABEL_BKG, LABEL_PRE
+from seizurecast.utils import dataset2Xy
 
 
-class TrainError(Exception):
+class PipelineError(Exception):
     pass
 
 
@@ -30,6 +31,7 @@ class Config:
 
 class Pipeline:
     def __init__(self, config:Config):
+        """Pipeline for offline data processing and modeling"""
         self.token_paths = None
         self.LEN_PRE, self.LEN_POS, self.SEC_GAP, self.SAMPLING_RATE = \
             config.len_pre, config.len_pos, config.sec_gap, config.sampl_r
@@ -45,29 +47,68 @@ class Pipeline:
         self.scores_Test = 0
         self.results = Results()
 
+        self.X, self.y = None, None
+        """Data and labels"""
+        self.use_labels = [LABEL_BKG, LABEL_PRE]
+        """subset of y labels used for classification"""
+
+        self.seed = 100
+        """random seed"""
+
+        # ========= Models =======
+        self.models = {}
+
+    def reset(self):
+        self.results = Results()
+
+    def load_default_models(self):
+        # Models
+        clf = {}
+        # Linear Model
+        from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+        clf['lda'] = LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
+        clf['lg'] = LogisticRegression(random_state=0, max_iter=2000)
+        clf['rf'] = RandomForestClassifier(n_estimators=40, max_depth=None,
+                                           min_samples_split=3, random_state=0)
+        # TODO: CNN+LSTM model
+        self.models = clf
+
     def dump_xy(self):
         with open('../../data/processed/xy.pkl', 'wb') as fp:
             for ipath, token_path in enumerate(self.token_paths):
                 if self.__verbose:
                     print(f'dumping: {token_path}')
-                _X, _y = self.__Xy_from_one(token_path)
+                _X, _y = self.read_file(token_path)
                 pickle.dump((_X, _y), fp)
 
-    def load_xy(self):
+    def load_xy(self, pkl_file='../../data/processed/xy.pkl'):
         X, y = [], []
-        with open('../../data/processed/xy.pkl', 'rb') as fp:
+        with open(pkl_file, 'rb') as fp:
             for i in range(0, 1000000):
                 try:
                     _X, _y = pickle.load(fp)
                     X.extend(_X), y.extend(_y)
                 except EOFError:
                     break
-        return X, y
+        self.X, self.y = X, y
+
+    def load_xy_sql(self, table, engine, col_X, col_y):
+        """load x, y from sql table"""
+        import pandas
+        df = pandas.read_sql_table(table, engine)
+        self.X = df.iloc[:, col_X].to_numpy()
+        self.y = df.iloc[:, col_y].to_numpy()
 
     def pipe(self):
-        X, y = self.load_xy()
+        X, y = self.X, self.y
+        if X is None or y is None:
+            raise PipelineError('Data must be loaded before calling pipe()')
+
+        if len(self.models) == 0:
+            raise PipelineError('Model must be loaded before calling pipe()')
+
         self.scores_CV, self.scores_Test, eval_result, models = \
-            self.__eval_many(X, y)
+            self.validate_fit_eval(X, y)
 
         # convert to results
         for key, evls in eval_result.items():
@@ -83,13 +124,13 @@ class Pipeline:
         self.results.cross_val_fold = self.__ncv
         self.results.test_size = self.__test_size
 
-    def __Xy_from_one(self, token_path):
+    def read_file(self, token_path):
         # load dataset
-        dataset, labels = dataset_from_many_edfs([token_path],
-                                                 len_pre=self.LEN_PRE,
-                                                 len_post=self.LEN_POS,
-                                                 sec_gap=self.SEC_GAP,
-                                                 fsamp=self.SAMPLING_RATE)
+        dataset, labels = make_dataset([token_path],
+                                       len_pre=self.LEN_PRE,
+                                       len_post=self.LEN_POS,
+                                       sec_gap=self.SEC_GAP,
+                                       fsamp=self.SAMPLING_RATE)
 
         # balance data
         dataset, labels = balance_ds(dataset, labels, seed=100)
@@ -97,51 +138,43 @@ class Pipeline:
         print(f"Collected {len(labels)} data points") if self.__verbose else None
 
         # feature extraction
-        dataset_power = get_power(dataset, fsamp=self.SAMPLING_RATE)
+        dataset_power = bin_power(dataset, fsamp=self.SAMPLING_RATE)
 
         # convert to Xy
-        ds_pwd = get_power_freq(dataset_power)
+        ds_pwd = bin_power_freq(dataset_power)
         X, y = dataset2Xy(ds_pwd, labels)
 
         return X, y
 
     def __post_process(self, X, y):
         # filtered out classes
-        id_bkg_pre = [any([yi == lbl for lbl in [LABEL_BKG, LABEL_PRE]]) for
+        id_bkg_pre = [any([yi == lbl for lbl in self.use_labels]) for
                       yi in y]
         X = np.array(X)[id_bkg_pre, :]
         y = np.array(y)[id_bkg_pre]
 
         # balance data again
-        X, y = balance_ds(X, y, seed=100)
+        X, y = balance_ds(X, y, seed=self.seed)
         return X, y
 
-    def __eval_many(self, X, y):
+    def validate_fit_eval(self, X, y):
         """Evaluate X and y"""
         X, y = self.__post_process(X, y)
 
         print(f"Collected {len(y)} data points") if self.__verbose else None
 
         if len(np.unique(y)) < 2:
-            raise TrainError("# of unique values of y must >= 2")
+            raise PipelineError("# of unique values of y must >= 2")
 
-        # Binarize the label
-        y_b = preprocessing.label_binarize(y, classes=[LABEL_BKG, LABEL_PRE])
+        # Binarize the label  #TODO: combine __post_process to pre_process
+        y_b = preprocessing.label_binarize(y, classes=self.use_labels)
         y_b = np.reshape(y_b, (len(y_b),))
 
         # Train test split
         train_X, test_X, train_y, test_y = \
-            train_test_split(X, y_b, test_size=self.__test_size,random_state=41)
+            train_test_split(X, y_b, test_size=self.__test_size,random_state=self.seed)
 
-        # Models
-        clf = {}
-        # Linear Model
-        from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-        clf['lda'] = LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
-        clf['lg'] = LogisticRegression(random_state=0, max_iter=2000)
-        clf['rf'] = RandomForestClassifier(n_estimators=40, max_depth=None,
-                                           min_samples_split=3, random_state=0)
-        # TODO: CNN+LSTM model
+        clf = self.models
 
         # cv
         cvscores = {}
@@ -179,7 +212,7 @@ class Pipeline:
 
 
 if __name__ == '__main__':
-    edfs = get_all_edfs()
+    edfs = listdir_edfs()
     conf = Config()
     pipe = Pipeline(conf)
 

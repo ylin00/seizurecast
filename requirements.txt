@@ -6,6 +6,8 @@ pandas
 matplotlib
 streamlit
 sklearn
+pyedflib
+catch22
 
 # Github repos
 git+https://github.com/forrestbao/pyeeg.git

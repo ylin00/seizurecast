@@ -22,32 +22,28 @@ import math
 import os
 import re
 
-import numpy as np
 import pandas as pd
 
-from src.data import tu_pystream as ps
-from src.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
+from seizurecast.data.tu_pystream import nedc_pystream as ps
+from seizurecast.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS, LABEL_NAN, \
     STD_CHANNEL_01_AR
-from src.data.preprocess import preprocess
 
 
-def get_all_edfs():
+def listdir_edfs(directory='~/github/ids/tusz_1_5_2/edf/train/01_tcp_ar',
+                 columns=('tcp_type', 'patient_group', 'patient',
+                          'session', 'token')):
     """Returns all edf filepaths in a DataFrame
 
     Returns:
         pd.DataFrame: filepaths
     """
-    columns = (
-    'path0', 'path1', 'path2', 'path3', 'tcp_type', 'patient_group', 'patient',
-    'session', 'token')
-
-    filelist = glob.glob(
-        os.path.join('../tusz_1_5_2/edf/train/01_tcp_ar', '**', '*.edf'),
-        recursive=True)
+    filelist = glob.glob(os.path.join(directory, '**', '*.edf'), recursive=True)
     fparts = [re.split('/|[.]edf', filename)[:-1] for filename in filelist]
 
-    df = pd.DataFrame(
-        {key: value for key, value in zip(tuple(columns), tuple(zip(*fparts)))})
+    if len(fparts[0]) > len(columns):
+        columns = ['path'+str(i) for i in range(0, len(fparts[0])-len(columns))] + list(columns)
+
+    df = pd.DataFrame({key: value for key, value in zip(tuple(columns), tuple(zip(*fparts)))})
 
     # A very complicated lambda function
     return df.assign(token_path=lambda x: eval(
@@ -109,7 +105,7 @@ def read_1_patient(patient_folder):
         standard data TBD
 
     """
-    pass
+    raise NotImplementedError
 
 
 def load_tse_bi(token_path):
@@ -121,8 +117,7 @@ def load_tse_bi(token_path):
             /00001234_s001_t000
 
     Returns:
-        intvs: list of intervals
-        labels: list of labels
+        tuple: intvs - list of intervals.   labels - list of labels.
 
     """
     intvs, labels = [], []
@@ -210,7 +205,7 @@ def sort_channel(raw, ch_labels, std_labels=STD_CHANNEL_01_AR):
 
     """
     if len(set(ch_labels).intersection(set(std_labels))) < len(std_labels):
-        return None
+        raise Exception('Channel labels must match the length of std_labels')
     else:
         return [raw[i] for i in [ch_labels.index(lbl) for lbl in std_labels]]
 
@@ -260,52 +255,3 @@ def signal_to_dataset(raw, fsamp, intvs, labels):
         ds.extend(chopped_sig)
         lbl.extend([labels[i]] * len(chopped_sig))
     return ds, lbl
-
-
-def plot_eeg(dataframe, tmin, tmax, fsamp):
-    dataframe[slice(int(tmin*fsamp), int(tmax*fsamp))].plot(legend=False)
-
-
-def dataset_from_many_edfs(token_files, len_pre, len_post, sec_gap, fsamp=256):
-    """Read and process a list of edf files
-
-    Args:
-        token_files(list): list of edf file path without extension
-        len_pre: length of pre-seizure stage in seconds
-        len_post: length of post-seizure stage in seconds
-        sec_gap: gap between pre-seizure and seizure in seconds
-        fsamp(int): Desired sampling rate in Hz
-
-    Returns:
-        tuple(tuple, tuple, int): dataset, labels, sampling rate
-    """
-    # TODO: assert no extension in the edf file path
-    # TODO: dataset return as tuples
-
-    dataset, labels = [], []
-    for tf in token_files:
-        # load token
-        f, s, l = read_1_token(tf)
-        f = int(np.mean(f))
-
-        # sort channel label
-        s = sort_channel(s, l, STD_CHANNEL_01_AR)
-
-        # load labeling file
-        intvs, labls = load_tse_bi(tf)
-
-        # relabel
-        intvs, labls = relabel_tse_bi(intvs=intvs, labels=labls,
-                                      len_pre=len_pre, len_post=len_post,
-                                      sec_gap=sec_gap)
-
-        # pre process
-        s = preprocess(s, fsamp / np.mean(f))
-
-        # generate dataset
-        ds, lbl = signal_to_dataset(raw=s, fsamp=fsamp, intvs=intvs,
-                                    labels=labls)
-        dataset.extend(ds)
-        labels.extend(lbl)
-
-    return dataset, labels

@@ -10,8 +10,12 @@ Returns:
 
 TODO: make use of catch 22
 """
+import catch22
 import numpy as np
+import pandas as pd
 import pyeeg
+
+from seizurecast.utils import dataset_3d_to_2d
 
 
 def power_and_freq(data):
@@ -21,7 +25,7 @@ def power_and_freq(data):
         data: num_of_channel x num_of_freq
 
     Returns:
-        data: num_of_channel x 3
+        data: num_of_channel x 2 (pwd, freq)
     """
     res0 = []
     for channel in data:
@@ -121,3 +125,85 @@ def RMSE(data):
     """"""
     return np.mean(np.array(data)**2, 0)
     pass
+
+
+def feature_channel(channel, fsamp=256, band=range(0, 45)):
+    """Convert time series of a given channel to list of features.
+    Args:
+        channel: 1-D array-like
+        fsamp: sampling rate in Hz.
+        band: band-pass in Hz.
+    Returns:
+        list: 1-D array-like
+    """
+
+    # catch 22
+    res = catch22.catch22_all(channel)['values']
+
+    # power and freq
+    power = pyeeg.bin_power(channel, Band=band, Fs=fsamp)[0]
+    pwd = np.mean(power)
+    freqs = np.arange(0, len(power))
+    pdf = np.array(power) / np.sum(power)
+    mu = np.sum(freqs * pdf)
+    # m2 = np.sum((freqs - mu)**2 * pdf)
+    res.extend([pwd, mu])
+
+    return res
+
+
+def feature_2D(d2):
+    """Convert a collection of time series to a list of features
+    Args:
+        d2: 2-D array-like, with shape of (nchannel x nsamples)
+    Returns:
+        list: 1-D array-like features.
+    """
+    raise NotImplementedError
+
+
+def get_features(dataset):
+    """Dataset to features
+
+    Args:
+        dataset: Pre-processed dataset, of size (nepoch, nchannel, nsamples)
+
+    Returns:
+        pd.DataFrame: size of nfeatures x nepoch.
+            If there are channel dependent features, list them in ch1.a, ch1.b, ..., chn.a, chn.b
+    """
+    #TODO: configs as argumnets
+    fsamp = 256
+    band = range(0, 45)
+    c22feas = [[feature_channel(channel, fsamp=fsamp, band=band) for channel in epoch] for epoch in dataset]
+    c22feas = dataset_3d_to_2d(c22feas)  # TODO: merge with dataset2Xy
+    df = pd.DataFrame({'f'+str(i):feature for i, feature in enumerate(c22feas)})
+    return df
+
+
+FEATURES = [
+    'DN_HistogramMode_5',
+    'DN_HistogramMode_10',
+    'CO_f1ecac',
+    'CO_FirstMin_ac',
+    'CO_HistogramAMI_even_2_5',
+    'CO_trev_1_num',
+    'MD_hrv_classic_pnn40',
+    'SB_BinaryStats_mean_longstretch1',
+    'SB_TransitionMatrix_3ac_sumdiagcov',
+    'PD_PeriodicityWang_th0_01',
+    'CO_Embed2_Dist_tau_d_expfit_meandiff',
+    'IN_AutoMutualInfoStats_40_gaussian_fmmi',
+    'FC_LocalSimple_mean1_tauresrat',
+    'DN_OutlierInclude_p_001_mdrmd',
+    'DN_OutlierInclude_n_001_mdrmd',
+    'SP_Summaries_welch_rect_area_5_1',
+    'SB_BinaryStats_diff_longstretch0',
+    'SB_MotifThree_quantile_hh',
+    'SC_FluctAnal_2_rsrangefit_50_1_logi_prop_r1',
+    'SC_FluctAnal_2_dfa_50_1_2_logi_prop_r1',
+    'SP_Summaries_welch_rect_centroid',
+    'FC_LocalSimple_mean3_stderr',
+    'PW_average_power',
+    'PW_average_freq'
+]

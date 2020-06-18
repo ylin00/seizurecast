@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 # TODO: rename s
+# TODO: remove dependence on dataframe
 def preprocess(s, resample_factor=1.0, freq_range=[0.01, 0.1]):
     """Pre process
 
@@ -20,9 +21,7 @@ def preprocess(s, resample_factor=1.0, freq_range=[0.01, 0.1]):
                             axis=1)
 
     # read token and convert to data frame
-    df0 = pd.DataFrame(np.array(s).transpose(), columns=['ch' + str(i) for i in
-                                                         range(0, len(
-                                                             s))])  # TODO: use l as label
+    df0 = pd.DataFrame(np.array(s).transpose(), columns=['ch' + str(i) for i in range(0, len(s))])  # TODO: use l as label
 
     # Drop Channels
     df0 = df0.iloc[:, 0:8]
@@ -32,7 +31,6 @@ def preprocess(s, resample_factor=1.0, freq_range=[0.01, 0.1]):
 
     # Filter with low and high pass
     filter = signal.firwin(400, freq_range, pass_zero=False)
-    df0 = df0.apply(
-        lambda x: np.real(signal.convolve(x.to_numpy(), filter, mode='same')))
+    df0 = df0.apply(lambda x: np.real(signal.convolve(x.to_numpy(), filter, mode='same')))
 
     return df0.to_numpy().transpose()
