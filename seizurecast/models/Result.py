@@ -46,7 +46,7 @@ class Results:
         # Plot formatting
         plt.figure(figsize=(8, 6))
         plt.rcParams['font.size'] = 16
-        plt.style.use('fivethirtyeight')
+        #plt.style.use('fivethirtyeight')
 
         # Plot all curves
         for model, result in self.results.items():
