@@ -1,6 +1,7 @@
 import numpy as np
-from seizurecast.data.file_io import read_1_token, sort_channel, load_tse_bi, relabel_tse_bi, signal_to_dataset
-from seizurecast.data.preprocess import preprocess
+from seizurecast.data.file_io import read_1_token, load_tse_bi
+from seizurecast.data.label import relabel_tse_bi
+from seizurecast.data.preprocess import preprocess, sort_channel, signal_to_dataset
 from seizurecast.models.par import STD_CHANNEL_01_AR
 
 
@@ -47,4 +48,3 @@ def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=3
         labels.extend(lbl)
 
     return dataset, labels
-
