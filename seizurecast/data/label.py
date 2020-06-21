@@ -1,7 +1,7 @@
 """
 Label manipulation
 """
-from seizurecast.models.par import LABEL_BKG, LABEL_SEZ, LABEL_PRE, LABEL_NAN, LABEL_POS
+from seizurecast.models.parameters import LABEL_BKG, LABEL_SEZ, LABEL_PRE, LABEL_NAN, LABEL_POS
 from seizurecast.utils import i_ceil
 
 

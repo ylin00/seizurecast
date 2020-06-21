@@ -7,7 +7,7 @@ from seizurecast.data import file_io, label
 # TODO: move this to setup/config.ini
 # Create connection to postgresql
 from seizurecast.data.make_dataset import make_dataset
-from seizurecast.features.feature import get_features
+from seizurecast.feature import get_features
 
 SQLengine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{creds.PGHOST}:5432/{creds.PGDATABASE}')
 

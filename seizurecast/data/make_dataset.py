@@ -2,7 +2,7 @@ import numpy as np
 from seizurecast.data.file_io import read_1_token, load_tse_bi
 from seizurecast.data.label import relabel_tse_bi
 from seizurecast.data.preprocess import preprocess, sort_channel, signal_to_dataset
-from seizurecast.models.par import STD_CHANNEL_01_AR
+from seizurecast.models.parameters import STD_CHANNEL_01_AR
 
 
 def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=300, sec_gap=0, fsamp=256):

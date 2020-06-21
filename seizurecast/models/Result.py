@@ -1,4 +1,4 @@
-from seizurecast.visualization.plots import plot_roc_curve, plot_confusion_matrix
+from seizurecast.plots import plot_roc_curve, plot_confusion_matrix
 import matplotlib.pyplot as plt
 
 

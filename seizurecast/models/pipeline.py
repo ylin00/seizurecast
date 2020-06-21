@@ -7,14 +7,14 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 
 from seizurecast.models.Result import Result, Results
-from seizurecast.features.feature import bin_power_freq, bin_power
+from seizurecast.feature import bin_power_freq, bin_power
 from seizurecast.models.train_model import balance_ds
 from seizurecast.data.file_io import listdir_edfs
 from seizurecast.data.make_dataset import make_dataset
 import numpy as np
 
-from seizurecast.models.model import evaluate_model
-from seizurecast.models.par import LABEL_BKG, LABEL_PRE
+from seizurecast.models.evaluate import evaluate_model
+from seizurecast.models.parameters import LABEL_BKG, LABEL_PRE
 from seizurecast.utils import dataset2Xy
 
 

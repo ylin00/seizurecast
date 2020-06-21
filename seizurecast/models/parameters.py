@@ -1,14 +1,5 @@
-"""Global Configurations
-# TODO: rename module name
+"""Global Parameters
 """
-
-# relabeling config
-# TODO: remove the following four configs
-LEN_PRE = 180
-LEN_POS = 60
-SEC_GAP = 60
-SAMPLING_RATE = 256
-
 
 LABEL_BKG = 'bckg'
 LABEL_PRE = 'pres'

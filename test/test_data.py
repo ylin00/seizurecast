@@ -1,7 +1,7 @@
 from seizurecast.data.file_io import *
 from seizurecast.data.label import relabel_tse_bi
 from seizurecast.data.preprocess import sort_channel, chop_signal, signal_to_dataset
-from seizurecast.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS
+from seizurecast.models.parameters import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS
 import numpy as np
 
 

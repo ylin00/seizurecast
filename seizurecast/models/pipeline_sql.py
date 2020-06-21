@@ -1,4 +1,4 @@
-from seizurecast.models.par import LABEL_PRE, LABEL_BKG, LABEL_SEZ
+from seizurecast.models.parameters import LABEL_PRE, LABEL_BKG, LABEL_SEZ
 from seizurecast.models.pipeline import Pipeline, Config
 import pandas as pd
 
@@ -7,7 +7,7 @@ class Pipeline_sql(Pipeline):
     def __init__(self, conf=Config()):
         """Pipeline for SQL based training"""
         super(Pipeline_sql, self).__init__(conf)
-        from seizurecast.to_sql import SQLengine
+        from seizurecast.postgresql import SQLengine
         self.engine = SQLengine
 
     def dump_xy(self):

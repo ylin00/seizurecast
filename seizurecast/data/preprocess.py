@@ -3,7 +3,7 @@ from scipy import signal
 import numpy as np
 import pandas as pd
 
-from seizurecast.models.par import STD_CHANNEL_01_AR
+from seizurecast.models.parameters import STD_CHANNEL_01_AR
 
 
 # TODO: rename s

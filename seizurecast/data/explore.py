@@ -6,7 +6,7 @@ import numpy as np
 # relabeling config
 from seizurecast.data.label import relabel_tse_bi
 from seizurecast.data.preprocess import sort_channel, signal_to_dataset
-from seizurecast.models.par import STD_CHANNEL_01_AR
+from seizurecast.models.parameters import STD_CHANNEL_01_AR
 
 LEN_PRE = 15
 LEN_POS = 60

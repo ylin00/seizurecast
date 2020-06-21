@@ -8,7 +8,6 @@ Args:
 Returns:
     list: (a list of features)  #TODO: change current interface to adhere to this
 
-TODO: make use of catch 22
 """
 import catch22
 import numpy as np
