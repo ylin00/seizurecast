@@ -8,6 +8,8 @@ streamlit
 sklearn
 pyedflib
 catch22
+sqlalchemy
+psycopg2
 
 # Github repos
 git+https://github.com/forrestbao/pyeeg.git

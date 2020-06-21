@@ -14,16 +14,18 @@ SQLengine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{cred
 
 def write_tables_to_sql():
     # directory
-    df = file_io.listdir_edfs('/Users/yanxlin/github/ids/tusz_1_5_2/edf/')
+    homedir = "/media/ylin00/SP B75 Pro/ylin00/tusz_1_5_2/edf"
+    print(homedir)
+    df = file_io.listdir_edfs(homedir)
     df = df.rename(columns={'path7': 'train_test'})
     df.to_sql('directory', con=SQLengine, if_exists='replace')
 
     # seiz-bckg
-    df = pd.read_table('/Users/yanxlin/github/ids/tusz_1_5_2/_DOCS/ref_train.txt', header=None, sep=' ',
-                       names=['token', 'time_start', 'time_end', 'label', 'prob']).assign(train_test='train')
-    df2 = pd.read_table('/Users/yanxlin/github/ids/tusz_1_5_2/_DOCS/ref_dev.txt', header=None, sep=' ',
-                        names=['token', 'time_start', 'time_end', 'label', 'prob']).assign(train_test='test')
-    df.append(df2).to_sql('seiz_bckg', SQLengine, if_exists='replace')
+    #df = pd.read_table('/Users/yanxlin/github/ids/tusz_1_5_2/_DOCS/ref_train.txt', header=None, sep=' ',
+    #                   names=['token', 'time_start', 'time_end', 'label', 'prob']).assign(train_test='train')
+    #df2 = pd.read_table('/Users/yanxlin/github/ids/tusz_1_5_2/_DOCS/ref_dev.txt', header=None, sep=' ',
+    #                    names=['token', 'time_start', 'time_end', 'label', 'prob']).assign(train_test='test')
+    #df.append(df2).to_sql('seiz_bckg', SQLengine, if_exists='replace')
 
 
 def __feature_1_token(tk, fsamp=256, verbose=False, feature_type='c22'):
@@ -105,5 +107,6 @@ def write_features_to_sql(indexes=(0, -1), task='test-c22'):
 
 if __name__ == '__main__':
 
-    write_features_to_sql()
-    print(pd.read_sql_table('features', SQLengine).shape)
+    #write_features_to_sql()
+    write_tables_to_sql()
+    print(pd.read_sql_table('directory', SQLengine).shape)

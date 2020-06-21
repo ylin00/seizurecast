@@ -28,6 +28,7 @@ def listdir_edfs(directory='~/github/ids/tusz_1_5_2/edf/train/01_tcp_ar',
     """
     filelist = glob.glob(os.path.join(directory, '**', '*.edf'), recursive=True)
     fparts = [re.split('/|[.]edf', filename)[:-1] for filename in filelist]
+    print(filelist[0])
 
     if len(fparts[0]) > len(columns):
         columns = ['path'+str(i) for i in range(0, len(fparts[0])-len(columns))] + list(columns)
