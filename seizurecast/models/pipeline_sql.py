@@ -7,7 +7,7 @@ class Pipeline_sql(Pipeline):
     def __init__(self, conf=Config()):
         """Pipeline for SQL based training"""
         super(Pipeline_sql, self).__init__(conf)
-        from seizurecast.features.to_sql import SQLengine
+        from seizurecast.to_sql import SQLengine
         self.engine = SQLengine
 
     def dump_xy(self):

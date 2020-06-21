@@ -240,3 +240,34 @@ FEATURES = [
     'PW_average_power',
     'PW_average_freq'
 ]
+
+
+def bin_power_freq(dataset_power):
+    """
+    Args:
+        dataset_power: list of size n_epoch x n_channel x n_freq
+    Returns:
+        list: nepoch x n channel x 2
+    """
+    ds_pwd = []
+    for epoch in dataset_power:
+        res0 = power_and_freq(epoch)
+        ds_pwd.append(res0)
+    return ds_pwd
+
+
+def bin_power(dataset, fsamp:int, band=range(0, 45)):
+    """Power spec
+
+    Args:
+        dataset: n_epoch x n_channel x n_sample
+        fsamp:
+        band:
+
+    Returns:
+        n_epoch x n_channel x len(band)
+    """
+    res = []
+    for i, data in enumerate(dataset):
+        res.append(power(data, fsamp=fsamp, band=band))
+    return res

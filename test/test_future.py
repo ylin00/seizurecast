@@ -2,6 +2,7 @@ from seizurecast.data.file_io import *
 from seizurecast.data.label import relabel_tse_bi
 from seizurecast.data.preprocess import sort_channel, chop_signal, signal_to_dataset
 from seizurecast.models.par import LABEL_BKG, LABEL_PRE, LABEL_SEZ, LABEL_POS
+import numpy as np
 
 
 def test_relabel():
@@ -79,7 +80,7 @@ def test_chop_supersample():
 
 
 def test_load_tse_bi():
-    path = '../tusz_1_5_2/edf/train/01_tcp_ar/004/00000492' \
+    path = '../../tusz_1_5_2/edf/train/01_tcp_ar/004/00000492' \
            '/s003_2003_07_18/00000492_s003_t001'
     intvs, labls = load_tse_bi(path)
     np.testing.assert_array_equal(intvs, [[0.0, 33.1425], [33.1425, 53.0008],
@@ -111,8 +112,9 @@ def test_sort_channel():
 def test_sort_channel_drop_missing():
     sig=[[1], [2]]  # 3 channel
     chl=['a', 'b']  # channel label
-    newsig = sort_channel(sig, chl, std_labels=['c', 'b', 'a'])
-    np.testing.assert_array_equal(newsig, None)
+    with np.testing.assert_raises(Exception):
+        newsig = sort_channel(sig, chl, std_labels=['c', 'b', 'a'])
+    # np.testing.assert_array_equal(newsig, None)
 
 
 def test_sort_channel_extra_channel():

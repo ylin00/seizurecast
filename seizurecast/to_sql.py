@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine
 
-import seizurecast.postgresql as creds
+import seizurecast.config as creds
 from seizurecast.data import file_io, label
 
 # TODO: move this to setup/config.ini

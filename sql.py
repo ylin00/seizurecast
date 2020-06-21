@@ -3,8 +3,7 @@ Writing features to SQL server
 """
 import argparse
 
-from seizurecast.features.to_sql import write_features_to_sql, SQLengine
-import pandas as pd
+from seizurecast.to_sql import write_features_to_sql
 
 VERSION = 'v1.0.0'
 

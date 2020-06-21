@@ -7,7 +7,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 
 from seizurecast.models.Result import Result, Results
-from seizurecast.features.dataset_funcs import balance_ds, bin_power, bin_power_freq
+from seizurecast.features.feature import bin_power_freq, bin_power
+from seizurecast.models.train_model import balance_ds
 from seizurecast.data.file_io import listdir_edfs
 from seizurecast.data.make_dataset import make_dataset
 import numpy as np
