@@ -1,5 +1,5 @@
 """
-This script profile the time cost of data preprocessing.
+This script profiles the time cost of data preprocessing.
 
 """
 from time import time
@@ -9,8 +9,8 @@ from seizurecast.features.to_sql import write_features_to_sql
 from seizurecast.models.pipeline import Config, Pipeline
 
 
-# ... functions to profile
-def Pipeline_pipline():
+# ### functions to profile
+def __pipeline():
     edfs = listdir_edfs()
     conf = Config()
     pipe = Pipeline(conf)
@@ -26,12 +26,14 @@ def __write_features_to_sql():
     write_features_to_sql()
 
 
-
 pr = cProfile.Profile()
 pr.enable()
-# ... do something ...
+
+# ### do something ###
 
 __write_features_to_sql()
+
+# ######### end ########## #
 
 pr.disable()
 s = io.StringIO()
