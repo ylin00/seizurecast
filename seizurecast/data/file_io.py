@@ -81,33 +81,6 @@ def read_1_token(token_path):
     return fsamp_mont, sig_mont, labels_mont
 
 
-def read_1_session(session_path):
-    """Read multiple tokens of the same session
-
-    Args:
-        session_path: file path to a session.
-            e.g. tuh_eeg/v1.0.0/edf/00000037/00001234/s001_2012_03_06
-
-    Returns:
-        dataset, labels
-    """
-    raise NotImplementedError
-
-
-def read_1_patient(patient_folder):
-    """Read multiple sessions belonging to the same patient
-
-    Args:
-        patient_folder: path to a patient folder
-            e.g.: tuh_eeg/v1.0.0/edf/00000037
-
-    Returns:
-        standard data TBD
-
-    """
-    raise NotImplementedError
-
-
 def load_tse_bi(token_path):
     """Reads .tse_bi file and returns backgroud and seizure intervals
 

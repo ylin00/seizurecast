@@ -1,8 +1,8 @@
+"""
+Label manipulation
+"""
 from seizurecast.models.par import LABEL_BKG, LABEL_SEZ
-
-i_ceil = lambda v, lst: next((i for i, x in enumerate(lst) if x > v), None)
-"""return the first index where list[index] > v, return None if not found."""
-# assert intvs_ is asccending
+from seizurecast.utils import i_ceil
 
 
 def post_sezure_s(timestamps, upper_bounds, labels, max_sec=99999, label_bckg=LABEL_BKG, label_sez=LABEL_SEZ):

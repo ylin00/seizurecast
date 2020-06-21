@@ -113,4 +113,24 @@ def dataset_to_df(dataset, labels):
     return df_pwd
 
 
-locate = lambda listOfElems, elem: [ i for i in range(len(listOfElems)) if listOfElems[i] == elem ]
+def locate(listOfElems, elem):
+    """return all the index of a list where given element is found.
+
+    Args:
+        listOfElems: list of elements
+        elem: element to look for
+
+    Returns:
+        list: list of ints
+    """
+    return [ i for i in range(len(listOfElems)) if listOfElems[i] == elem ]
+
+
+def i_ceil(v, lst):
+    """Return the first index where list[index] > v, return None if not found.
+
+    Args:
+        v: numeric value
+        lst: iterable of numbers
+    """
+    return next((i for i, x in enumerate(lst) if x > v), None)
