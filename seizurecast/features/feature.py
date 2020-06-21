@@ -162,7 +162,26 @@ def feature_2D(d2):
     raise NotImplementedError
 
 
-def get_features(dataset):
+def get_features(dataset, feature_type='c22'):
+    """Dataset to features
+
+    Args:
+        dataset: Pre-processed dataset, of size (nepoch, nchannel, nsamples)
+        feature_type: either c22 or hz256
+
+    Returns:
+        pd.DataFrame: size of nfeatures x nepoch.
+            If there are channel dependent features, list them in ch1.a, ch1.b, ..., chn.a, chn.b
+    """
+    if feature_type == 'c22':
+        return _get_features_c22(dataset)
+    elif feature_type == 'hz256':
+        return _get_features_average_intensity(dataset)
+    else:
+        raise NotImplementedError
+
+
+def _get_features_c22(dataset):
     """Dataset to features
 
     Args:
@@ -179,6 +198,20 @@ def get_features(dataset):
     c22feas = dataset_3d_to_2d(c22feas)  # TODO: merge with dataset2Xy
     df = pd.DataFrame({'f'+str(i):feature for i, feature in enumerate(c22feas)})
     return df
+
+
+def _get_features_average_intensity(dataset):
+    """Get average intensity of all channels.
+
+    Args:
+        dataset: Pre-processed dataset, of size (nepoch, nchannel, nsamples)
+
+    Returns:
+        pd.DataFrame: size of nfeatures x nepoch
+            nfeatures = sampling rate. Average intensity of all channels of each sample.
+
+    """
+    return pd.DataFrame({'sp'+str(i):fea for i, fea in enumerate(np.mean(np.array(dataset),axis=1).transpose())})
 
 
 FEATURES = [

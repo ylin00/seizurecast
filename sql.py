@@ -11,6 +11,7 @@ VERSION = 'v1.0.0'
 
 def parse_args():
     parser = argparse.ArgumentParser(description=VERSION)
+    parser.add_argument("task", help="task")
     parser.add_argument("start", help="starting index")
     parser.add_argument("end", help="ending index")
     parser.add_argument("-V", "--version", help="show program version",
@@ -26,4 +27,4 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    write_features_to_sql(indexes=(int(args.start), int(args.end)))
+    write_features_to_sql(indexes=(int(args.start), int(args.end)), task=args.task)
