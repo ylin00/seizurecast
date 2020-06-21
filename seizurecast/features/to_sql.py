@@ -45,6 +45,7 @@ def __feature_1_token(tk, fsamp=256, verbose=False):
 
 def write_features_to_sql(indexes=(0, -1), verbose=True):
     """
+    Read edf paths from directory table, convert to features and write to given table.
 
     Args:
         indexes(tuple): (start, end) the range of index to write to sql.
@@ -54,11 +55,12 @@ def write_features_to_sql(indexes=(0, -1), verbose=True):
 
     """
     fsamp = 256
+    query = "select token, token_path from directory where train_test = 'dev' and tcp_type = '01_tcp_ar';"
+    target_table = 'feature192_dev_01'
     beg, end = indexes
 
-    print("Only touch the train set and the tcp_type of 01") if verbose else None
-    tks = pd.read_sql("select token, token_path from directory where train_test = 'train' and tcp_type = '01_tcp_ar';",
-                      SQLengine)
+    print("Only touch the test set and the tcp_type of 01") if verbose else None
+    tks = pd.read_sql(query, SQLengine)
 
     nbatch = tks.shape[0]
     for (index, Series) in tks.iloc[beg:end, :].iterrows():
@@ -67,7 +69,7 @@ def write_features_to_sql(indexes=(0, -1), verbose=True):
         df = __feature_1_token(Series['token_path'], fsamp=fsamp, verbose=verbose) \
             .assign(token=Series['token'])
 
-        df.to_sql('features', SQLengine, if_exists='append')
+        df.to_sql(target_table, SQLengine, if_exists='append')
 
         del df
 
