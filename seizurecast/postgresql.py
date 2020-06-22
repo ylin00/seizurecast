@@ -14,8 +14,7 @@ SQLengine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{cred
 
 def write_tables_to_sql():
     # directory
-    homedir = "/media/ylin00/SP B75 Pro/ylin00/tusz_1_5_2/edf"
-    print(homedir)
+    homedir = "/User/yanxlin/github/ids/tusz_1_5_2/edf"
     df = file_io.listdir_edfs(homedir)
     df = df.rename(columns={'path7': 'train_test'})
     df.to_sql('directory', con=SQLengine, if_exists='replace')
