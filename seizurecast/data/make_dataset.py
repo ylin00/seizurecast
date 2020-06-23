@@ -9,6 +9,7 @@ def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=3
     """Read and process a list of edf files
 
     Args:
+        montage: montage config
         token_files(list): list of edf file path without extension
         len_pre: length of pre-seizure stage in seconds
         len_post: length of post-seizure stage in seconds
@@ -23,12 +24,6 @@ def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=3
 
     dataset, labels = [], []
     for tf in token_files:
-        # load token
-        f, s, l = read_1_token(tf)
-        f = int(np.mean(f))
-
-        # sort channel label
-        s = sort_channel(s, l, std_labels=montage)
 
         # load labeling file
         intvs, labls = load_tse_bi(tf)
@@ -38,8 +33,7 @@ def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=3
                                       len_pre=len_pre, len_post=len_post,
                                       sec_gap=sec_gap)
 
-        # pre process
-        s = preprocess(s, fsamp / np.mean(f))
+        s = produce_signal(tf, montage=montage, fsamp=fsamp)
 
         # generate dataset
         ds, lbl = signal_to_dataset(raw=s, fsamp=fsamp, intvs=intvs,
@@ -48,3 +42,28 @@ def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=3
         labels.extend(lbl)
 
     return dataset, labels
+
+
+def produce_signal(tf:str, montage=STD_CHANNEL_01_AR, fsamp=256):
+    """
+
+    Args:
+        tf: edf file path without extension
+        montage: montage config
+        fsamp(int): Desired sampling rate in Hz
+
+    Returns:
+        np.array: (nchannel x nsamples)
+
+    """
+    # load token
+    f, s, l = read_1_token(tf)
+    f = int(np.mean(f))
+
+    # sort channel label
+    s = sort_channel(s, l, std_labels=montage)
+
+    # pre process
+    s = preprocess(s, fsamp / np.mean(f))
+
+    return s

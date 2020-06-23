@@ -28,7 +28,7 @@ def preprocess(s, resample_factor=1.0, freq_range=[0.01, 0.1]):
     df0 = pd.DataFrame(np.array(s).transpose(), columns=['ch' + str(i) for i in range(0, len(s))])  # TODO: use l as label
 
     # Drop Channels
-    df0 = df0.iloc[:, 0:8]
+    df0 = df0.iloc[:, 0:8]  #TODO: drop channels use input argument instead of 0:8
 
     # Remove DC offset
     df0 = df0.apply(lambda x: x - np.mean(x))

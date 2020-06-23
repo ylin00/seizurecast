@@ -1,3 +1,3 @@
-from seizurecast.postgresql import write_tables_to_sql
+from seizurecast.postgresql import setup_directory
 
-write_tables_to_sql()
+setup_directory()

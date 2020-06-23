@@ -5,7 +5,7 @@ This script profiles the time cost of data preprocessing.
 from time import time
 import cProfile, pstats, io
 from seizurecast.data.file_io import listdir_edfs
-from seizurecast.postgresql import write_features_to_sql
+from seizurecast.postgresql import run_sql_task
 from seizurecast.models.pipeline import Config, Pipeline
 
 
@@ -23,7 +23,7 @@ def __pipeline():
 
 
 def __write_features_to_sql():
-    write_features_to_sql()
+    run_sql_task()
 
 
 pr = cProfile.Profile()

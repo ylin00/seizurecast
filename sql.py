@@ -3,7 +3,7 @@ Writing features to SQL server
 """
 import argparse
 
-from seizurecast.postgresql import write_features_to_sql
+from seizurecast.postgresql import run_sql_task
 
 VERSION = 'v1.0.0'
 
@@ -26,4 +26,4 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    write_features_to_sql(indexes=(int(args.start), int(args.end)), task=args.task)
+    run_sql_task(indexes=(int(args.start), int(args.end)), task=args.task)
