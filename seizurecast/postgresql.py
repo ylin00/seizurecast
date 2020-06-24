@@ -11,7 +11,8 @@ from seizurecast.data.preprocess import sort_channel, preprocess
 from seizurecast.feature import get_features
 from seizurecast.models.parameters import STD_CHANNEL_01_AR
 
-SQLengine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{creds.PGHOST}:5432/{creds.PGDATABASE}')
+SQLengine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{creds.PGHOST}:5432/{creds.PGDATABASE}',
+                          use_batch_mode=True)
 
 
 def setup_directory(homedir="/Users/yanxlin/github/ids/tusz_1_5_2/edf"):
@@ -23,7 +24,7 @@ def setup_directory(homedir="/Users/yanxlin/github/ids/tusz_1_5_2/edf"):
     """
     # directory
     df = file_io.listdir_edfs(homedir)
-    df = df.rename(columns={'path7': 'train_test'})
+    df = df.rename(columns={'path6': 'train_test'})
     df.to_sql('directory', con=SQLengine, if_exists='replace')
 
     # seiz-bckg
@@ -140,6 +141,8 @@ def import_edf_to_sql(
     tks = pd.read_sql(query, SQLengine)
     nbatch = tks.shape[0]
     beg, end = indexes
+    
+    dfs = []
 
     for (index, Series) in tks.iloc[beg:end, :].iterrows():
 
@@ -147,15 +150,21 @@ def import_edf_to_sql(
 
         s = produce_signal(Series['token_path'], montage=montage, fsamp=fsamp)
 
-        pd.DataFrame({'ch' + str(i): fea for i, fea in enumerate(s)})\
+        dfs.append(pd.DataFrame({'ch' + str(i): fea for i, fea in enumerate(s)})\
             .assign(token=Series['token'],
                     # Assign timestamps in second
-                    timestamp=pd.Series(range(0, len(s[0]))) / fsamp)\
-            .to_sql(target_table, SQLengine, if_exists='append')
+                    timestamp=pd.Series(range(0, len(s[0]))) / fsamp))
+
+        token = Series['token']
+
+        # with open('/media/ylin00/swap/csv/'+ token + '.csv', 'w') as fp:
+        #     pd.concat(dfs).to_csv(fp)
+
+    pd.concat(dfs).to_sql(target_table, SQLengine, if_exists='append')
 
 
 if __name__ == '__main__':
 
     #run_sql_task()
-    setup_directory()
+    setup_directory("/media/ylin00/swap/tusz_1_5_2/edf")
     print(pd.read_sql_table('directory', SQLengine).shape)
