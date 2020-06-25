@@ -7,9 +7,9 @@ from seizurecast.data import file_io, label
 # TODO: move this to setup/config.ini
 # Create connection to postgresql
 from seizurecast.data.make_dataset import make_dataset, produce_signal
-from seizurecast.data.preprocess import sort_channel, preprocess
 from seizurecast.feature import get_features
 from seizurecast.models.parameters import STD_CHANNEL_01_AR
+from seizurecast.utils import psql_insert_copy
 
 SQLengine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{creds.PGHOST}:5432/{creds.PGDATABASE}',
                           use_batch_mode=True)
@@ -153,21 +153,21 @@ def import_edf_to_sql(
 
         s = produce_signal(tk, montage=montage, fsamp=fsamp)
 
-        df = (pd.DataFrame({'ch' + str(i): fea for i, fea in enumerate(s)})\
-            .assign(token=token,
-                    # Assign timestamps in second
-                    timestamp=pd.Series(range(0, len(s[0]))) / fsamp))
+        ts = pd.Series(range(0, len(s[0]))) / fsamp  # Assign timestamps in second
+
+        df = pd.DataFrame({'ch' + str(i): fea for i, fea in enumerate(s)})\
+            .assign(token=token, timestamp=ts)
 
         # assign pre and post seizure duration
         intvs, lbls = file_io.load_tse_bi(tk)
         upperbounds = tuple(zip(*intvs))[1]
 
-        df = df.assign(post=lambda df: label.post_sezure_s(df.index + 1, upperbounds, lbls),
-                       pres=lambda df: label.pres_seizure_s(df.index + 1, upperbounds, lbls))
+        df = df.assign(post=lambda df: label.post_sezure_s(ts.to_numpy(), upperbounds, lbls),
+                       pres=lambda df: label.pres_seizure_s(ts.to_numpy(), upperbounds, lbls))
 
         dfs.append(df)
 
-    pd.concat(dfs).to_sql(target_table, SQLengine, if_exists='append')
+    pd.concat(dfs).to_sql(target_table, SQLengine, if_exists='append', method=psql_insert_copy)
 
 
 if __name__ == '__main__':
