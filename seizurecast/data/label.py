@@ -21,20 +21,22 @@ def post_sezure_s(timestamps, upper_bounds, labels, max_sec=99999, label_bckg=LA
 
     assert timestamps[-1] > timestamps[0], 'Timestamps Must be asccending'
 
-    for sec in timestamps:
+    sec_before = 0
+    for _, sec in enumerate(timestamps):
         iloc = i_ceil(sec, upper_bounds)
         if sec < 0 or iloc is None:
             res.append(None)
             continue
         l = labels[iloc]
         if l == label_bckg:
-            post += 1
+            post += (sec - sec_before)
             post = min(post, max_sec)
         elif l == label_sez:
             post = 0
         else:
             raise Exception(f'Label: {l} Not Recognized!')
         res.append(post)
+        sec_before = sec
     return res
 
 

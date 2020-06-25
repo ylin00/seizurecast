@@ -129,13 +129,13 @@ def locate(listOfElems, elem):
 
 
 def i_ceil(v, lst):
-    """Return the first index where list[index] > v, return None if not found.
+    """Return the first index where list[index] >= v, return None if not found.
 
     Args:
         v: numeric value
         lst: iterable of numbers
     """
-    return next((i for i, x in enumerate(lst) if x > v), None)
+    return next((i for i, x in enumerate(lst) if x >= v), None)
 
 
 def psql_insert_copy(table, conn, keys, data_iter):
@@ -148,7 +148,7 @@ def psql_insert_copy(table, conn, keys, data_iter):
     dbapi_conn = conn.connection
     with dbapi_conn.cursor() as cur:
         s_buf = io.StringIO()
-        writer = csv.writer(s_buf)
+        writer = csv.writer(s_buf, quoting=csv.QUOTE_NONE)
         writer.writerows(data_iter)
         s_buf.seek(0)
 
