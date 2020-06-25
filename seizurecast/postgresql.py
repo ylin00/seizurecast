@@ -141,24 +141,31 @@ def import_edf_to_sql(
     tks = pd.read_sql(query, SQLengine)
     nbatch = tks.shape[0]
     beg, end = indexes
-    
-    dfs = []
 
+    dfs = []
     for (index, Series) in tks.iloc[beg:end, :].iterrows():
 
         print(f"Processing batch {str(index)}/{str(nbatch)}")
 
-        s = produce_signal(Series['token_path'], montage=montage, fsamp=fsamp)
-
-        dfs.append(pd.DataFrame({'ch' + str(i): fea for i, fea in enumerate(s)})\
-            .assign(token=Series['token'],
-                    # Assign timestamps in second
-                    timestamp=pd.Series(range(0, len(s[0]))) / fsamp))
+        tk = Series['token_path']
 
         token = Series['token']
 
-        # with open('/media/ylin00/swap/csv/'+ token + '.csv', 'w') as fp:
-        #     pd.concat(dfs).to_csv(fp)
+        s = produce_signal(tk, montage=montage, fsamp=fsamp)
+
+        df = (pd.DataFrame({'ch' + str(i): fea for i, fea in enumerate(s)})\
+            .assign(token=token,
+                    # Assign timestamps in second
+                    timestamp=pd.Series(range(0, len(s[0]))) / fsamp))
+
+        # assign pre and post seizure duration
+        intvs, lbls = file_io.load_tse_bi(tk)
+        upperbounds = tuple(zip(*intvs))[1]
+
+        df = df.assign(post=lambda df: label.post_sezure_s(df.index + 1, upperbounds, lbls),
+                       pres=lambda df: label.pres_seizure_s(df.index + 1, upperbounds, lbls))
+
+        dfs.append(df)
 
     pd.concat(dfs).to_sql(target_table, SQLengine, if_exists='append')
 
