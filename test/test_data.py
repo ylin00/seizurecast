@@ -80,8 +80,7 @@ def test_chop_supersample():
 
 
 def test_load_tse_bi():
-    path = '../../tusz_1_5_2/edf/train/01_tcp_ar/004/00000492' \
-           '/s003_2003_07_18/00000492_s003_t001'
+    path = './test/data/train/tcp_type/patient_group/patient/session/token_t001'
     intvs, labls = load_tse_bi(path)
     np.testing.assert_array_equal(intvs, [[0.0, 33.1425], [33.1425, 53.0008],
                                           [53.0008, 184.0]])
