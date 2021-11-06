@@ -4,7 +4,6 @@ setup(
     name='seizurecast',
     packages=find_packages(),
     install_requires=[
-        'pyeeg @ git+https://github.com/forrestbao/pyeeg@e5d34f8e8dfd976b3c52e6c58f80306028275798',
         'catch22==0.2.0',
         'matplotlib==3.4.2',
         'numpy==1.21.1',
@@ -14,7 +13,7 @@ setup(
         'scipy==1.7.0',
         'SQLAlchemy==1.4.26'
     ],
-    version='0.1.0',
+    version='0.1.1',
     description='ReReal-time forecasting epileptic seizure using electroencephalogram',
     author='Yanxian Lin',
     license='MIT',

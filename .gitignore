@@ -13,3 +13,5 @@ tmp/arv/
 
 *.pkl
 build/
+*egg-info
+dist/
