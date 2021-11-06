@@ -65,6 +65,7 @@ def array3D_to_dataframe(dataset, labels):
 
     """
     flat = []
+    raise NotImplementedError()
 
 
 def dataset2Xy(ds_pwd, labels):

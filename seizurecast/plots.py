@@ -23,11 +23,11 @@ def plot_roc_curve(base_fpr, base_tpr, model_fpr, model_tpr):
     # Plot both curves
     plt.plot(base_fpr, base_tpr, 'b', label='baseline')
     plt.plot(model_fpr, model_tpr, 'r', label='model')
-    plt.legend();
-    plt.xlabel('False Positive Rate');
-    plt.ylabel('True Positive Rate');
-    plt.title('ROC Curves');
-    plt.show();
+    plt.legend()
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curves')
+    plt.show()
 
 
 def plot_confusion_matrix(cm, classes,

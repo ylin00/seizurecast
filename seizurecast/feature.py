@@ -12,14 +12,13 @@ Returns:
 import catch22
 import numpy as np
 import pandas as pd
-# import pyeeg
 
 from seizurecast.utils import dataset_3d_to_2d
 
 import numpy
 
 
-def bin_power(X, Band, Fs):
+def pyeeg_bin_power(X, Band, Fs):
     """Compute power in each frequency bin specified by Band from FFT result of
     X. By default, X is a real signal. (Copied from https://github.com/forrestbao/pyeeg/blob/e5d34f8e8dfd976b3c52e6c58f80306028275798/pyeeg/spectrum.py, under GNU General Public License v3.0)
     Note
@@ -86,7 +85,7 @@ def power_and_freq(data):
     return res0
 
 
-def power(data, fsamp:int, band=range(0, 45)):
+def power(data:np.ndarray, fsamp:int, band=range(0, 45)):
     """Power spec of dataset
 
     Args:
@@ -95,7 +94,7 @@ def power(data, fsamp:int, band=range(0, 45)):
     """
     res = []
     for j, channel in enumerate(data):
-        power = bin_power(channel, Band=band, Fs=fsamp)[0]
+        power = pyeeg_bin_power(channel, Band=band, Fs=fsamp)[0]
         res.append(power)
     return res
 
@@ -166,13 +165,12 @@ def freq_of_burst(data):
     Returns:
 
     """
-    pass
+    raise NotImplementedError()
 
 
 def RMSE(data):
     """"""
     return np.mean(np.array(data)**2, 0)
-    pass
 
 
 def feature_channel(channel, fsamp=256, band=range(0, 45)):
@@ -189,7 +187,7 @@ def feature_channel(channel, fsamp=256, band=range(0, 45)):
     res = catch22.catch22_all(channel)['values']
 
     # power and freq
-    power = bin_power(channel, Band=band, Fs=fsamp)[0]
+    power = pyeeg_bin_power(channel, Band=band, Fs=fsamp)[0]
     pwd = np.mean(power)
     freqs = np.arange(0, len(power))
     pdf = np.array(power) / np.sum(power)
@@ -207,7 +205,7 @@ def feature_2D(d2):
     Returns:
         list: 1-D array-like features.
     """
-    raise NotImplementedError
+    raise NotImplementedError()
 
 
 def get_features(dataset, feature_type='c22'):
