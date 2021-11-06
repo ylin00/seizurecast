@@ -4,7 +4,7 @@ import numpy.testing as testing
 
 
 def test_nedc_load_parameters_lbl():
-    train_path = 'test/data/train'
+    train_path = 'tests/data/train'
     tcp_type = 'tcp_type'
     patient_group = 'patient_group'
     patient = 'patient'
@@ -15,7 +15,7 @@ def test_nedc_load_parameters_lbl():
 
     """Load parameters"""
     ### load parameters
-    params1 = ps.nedc_load_parameters('src/seizurecast/data/tu_pystream/params_04.txt')
+    params1 = ps.nedc_load_parameters('seizurecast/data/tu_pystream/params_04.txt')
     params2 = ps.nedc_load_parameters_lbl(token_path + '.lbl')
 
     testing.assert_array_equal(params1.keys(), params2.keys())
