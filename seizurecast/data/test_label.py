@@ -1,5 +1,5 @@
 from seizurecast.data.label import post_sezure_s, pres_seizure_s
-from seizurecast.models.parameters import LABEL_SEZ, LABEL_BKG
+from seizurecast.data.parameters import LABEL_SEZ, LABEL_BKG
 import numpy as np
 
 

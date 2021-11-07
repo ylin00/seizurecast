@@ -8,11 +8,13 @@ from seizurecast.data import file_io, label
 # Create connection to postgresql
 from seizurecast.data.make_dataset import make_dataset, produce_signal
 from seizurecast.feature import get_features
-from seizurecast.models.parameters import STD_CHANNEL_01_AR
+from seizurecast.data.parameters import STD_CHANNEL_01_AR
 from seizurecast.utils import psql_insert_copy
 
+
+#TODO: check to makesure POSTGRESQL is available otherwise return mocking engine
 SQLengine = create_engine(f'postgresql://{creds.PGUSER}:{creds.PGPASSWORD}@{creds.PGHOST}:5432/{creds.PGDATABASE}',
-                          use_batch_mode=True)
+                            executemany_mode = "batch")
 
 
 def setup_directory(homedir="/Users/yanxlin/github/ids/tusz_1_5_2/edf"):

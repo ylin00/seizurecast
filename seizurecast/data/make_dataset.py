@@ -2,10 +2,10 @@ import numpy as np
 from seizurecast.data.file_io import read_1_token, load_tse_bi
 from seizurecast.data.label import relabel_tse_bi
 from seizurecast.data.preprocess import preprocess, sort_channel, signal_to_dataset
-from seizurecast.models.parameters import STD_CHANNEL_01_AR
+from seizurecast.data.parameters import STD_CHANNEL_01_AR
 
 
-def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=300, sec_gap=0, fsamp=256):
+def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=300, sec_gap=0, fsamp=256, verbose=False):
     """Read and process a list of edf files
 
     Args:
@@ -24,6 +24,9 @@ def make_dataset(token_files, montage=STD_CHANNEL_01_AR, len_pre=100, len_post=3
 
     dataset, labels = [], []
     for tf in token_files:
+
+        if verbose:
+            print(f"processing {tf}")
 
         # load labeling file
         intvs, labls = load_tse_bi(tf)

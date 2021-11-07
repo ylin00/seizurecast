@@ -14,7 +14,7 @@ from seizurecast.data.make_dataset import make_dataset
 import numpy as np
 
 from seizurecast.models.evaluate import evaluate_model
-from seizurecast.models.parameters import LABEL_BKG, LABEL_PRE
+from seizurecast.data.parameters import LABEL_BKG, LABEL_PRE
 from seizurecast.utils import dataset2Xy
 
 

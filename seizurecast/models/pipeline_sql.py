@@ -1,4 +1,4 @@
-from seizurecast.models.parameters import LABEL_PRE, LABEL_BKG, LABEL_SEZ
+from seizurecast.data.parameters import LABEL_PRE, LABEL_BKG, LABEL_SEZ
 from seizurecast.models.pipeline import Pipeline, Config
 import pandas as pd
 
