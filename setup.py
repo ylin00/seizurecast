@@ -13,7 +13,7 @@ setup(
         'scipy==1.7.0',
         'SQLAlchemy==1.4.26'
     ],
-    version='0.1.1',
+    version='0.1.3',
     description='ReReal-time forecasting epileptic seizure using electroencephalogram',
     author='Yanxian Lin',
     license='MIT',
